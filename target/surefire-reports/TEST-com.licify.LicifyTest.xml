@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.licify.LicifyTest" time="16.577" tests="27" errors="1" skipped="0" failures="1">
+  <properties>
+    <property name="java.specification.version" value="24"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+    <property name="sun.jnu.encoding" value="Cp1252"/>
+    <property name="java.class.path" value="E:\Licify\target\test-classes;C:\Users\CONTADOR\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.12.2\junit-jupiter-api-5.12.2.jar;C:\Users\CONTADOR\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\CONTADOR\.m2\repository\org\junit\platform\junit-platform-commons\1.12.2\junit-platform-commons-1.12.2.jar;C:\Users\CONTADOR\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\CONTADOR\.m2\repository\org\mockito\mockito-core\5.17.0\mockito-core-5.17.0.jar;C:\Users\CONTADOR\.m2\repository\net\bytebuddy\byte-buddy\1.15.11\byte-buddy-1.15.11.jar;C:\Users\CONTADOR\.m2\repository\net\bytebuddy\byte-buddy-agent\1.15.11\byte-buddy-agent-1.15.11.jar;C:\Users\CONTADOR\.m2\repository\org\objenesis\objenesis\3.3\objenesis-3.3.jar;C:\Users\CONTADOR\.m2\repository\org\mockito\mockito-junit-jupiter\5.17.0\mockito-junit-jupiter-5.17.0.jar;"/>
+    <property name="java.vm.vendor" value="Azul Systems, Inc."/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="user.variant" value=""/>
+    <property name="java.vendor.url" value="http://www.azul.com/"/>
+    <property name="user.timezone" value="Europe/Madrid"/>
+    <property name="os.name" value="Windows 10"/>
+    <property name="java.vm.specification.version" value="24"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="ES"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\Apache NetBeans\jdk\bin"/>
+    <property name="sun.java.command" value="org.apache.maven.surefire.booter.ForkedBooter C:\Users\CONTADOR\AppData\Local\Temp\surefire16073047346583857195 2025-09-08T12-11-30_134-jvmRun1 surefire-20250908121130741_1tmp surefire_0-20250908121130741_2tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="E:\Licify\target\test-classes;C:\Users\CONTADOR\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.12.2\junit-jupiter-api-5.12.2.jar;C:\Users\CONTADOR\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\CONTADOR\.m2\repository\org\junit\platform\junit-platform-commons\1.12.2\junit-platform-commons-1.12.2.jar;C:\Users\CONTADOR\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\CONTADOR\.m2\repository\org\mockito\mockito-core\5.17.0\mockito-core-5.17.0.jar;C:\Users\CONTADOR\.m2\repository\net\bytebuddy\byte-buddy\1.15.11\byte-buddy-1.15.11.jar;C:\Users\CONTADOR\.m2\repository\net\bytebuddy\byte-buddy-agent\1.15.11\byte-buddy-agent-1.15.11.jar;C:\Users\CONTADOR\.m2\repository\org\objenesis\objenesis\3.3\objenesis-3.3.jar;C:\Users\CONTADOR\.m2\repository\org\mockito\mockito-junit-jupiter\5.17.0\mockito-junit-jupiter-5.17.0.jar;"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="C:\Users\CONTADOR"/>
+    <property name="user.language" value="es"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="jdk.module.path" value="E:\Licify\target\classes;C:\Users\CONTADOR\.m2\repository\com\github\oshi\oshi-core\6.8.2\oshi-core-6.8.2.jar;C:\Users\CONTADOR\.m2\repository\net\java\dev\jna\jna\5.17.0\jna-5.17.0.jar;C:\Users\CONTADOR\.m2\repository\net\java\dev\jna\jna-platform\5.17.0\jna-platform-5.17.0.jar;C:\Users\CONTADOR\.m2\repository\org\slf4j\slf4j-api\2.0.17\slf4j-api-2.0.17.jar"/>
+    <property name="java.version.date" value="2025-07-15"/>
+    <property name="java.home" value="C:\Program Files\Apache NetBeans\jdk"/>
+    <property name="file.separator" value="\"/>
+    <property name="basedir" value="E:\Licify"/>
+    <property name="java.vm.compressedOopsMode" value="32-bit"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="surefire.real.class.path" value="C:\Users\CONTADOR\.m2\repository\org\apache\maven\surefire\surefire-booter\3.5.2\surefire-booter-3.5.2.jar;C:\Users\CONTADOR\.m2\repository\org\apache\maven\surefire\surefire-api\3.5.2\surefire-api-3.5.2.jar;C:\Users\CONTADOR\.m2\repository\org\apache\maven\surefire\surefire-extensions-spi\3.5.2\surefire-extensions-spi-3.5.2.jar;C:\Users\CONTADOR\.m2\repository\org\apache\maven\surefire\surefire-shared-utils\3.5.2\surefire-shared-utils-3.5.2.jar;C:\Users\CONTADOR\.m2\repository\org\apache\maven\surefire\surefire-logger-api\3.5.2\surefire-logger-api-3.5.2.jar;E:\Licify\target\test-classes;C:\Users\CONTADOR\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.12.2\junit-jupiter-api-5.12.2.jar;C:\Users\CONTADOR\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\CONTADOR\.m2\repository\org\junit\platform\junit-platform-commons\1.12.2\junit-platform-commons-1.12.2.jar;C:\Users\CONTADOR\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\CONTADOR\.m2\repository\org\mockito\mockito-core\5.17.0\mockito-core-5.17.0.jar;C:\Users\CONTADOR\.m2\repository\net\bytebuddy\byte-buddy\1.15.11\byte-buddy-1.15.11.jar;C:\Users\CONTADOR\.m2\repository\net\bytebuddy\byte-buddy-agent\1.15.11\byte-buddy-agent-1.15.11.jar;C:\Users\CONTADOR\.m2\repository\org\objenesis\objenesis\3.3\objenesis-3.3.jar;C:\Users\CONTADOR\.m2\repository\org\mockito\mockito-junit-jupiter\5.17.0\mockito-junit-jupiter-5.17.0.jar;C:\Users\CONTADOR\.m2\repository\org\apache\maven\surefire\surefire-junit-platform\3.5.2\surefire-junit-platform-3.5.2.jar;C:\Users\CONTADOR\.m2\repository\org\apache\maven\surefire\common-java5\3.5.2\common-java5-3.5.2.jar;C:\Users\CONTADOR\.m2\repository\org\junit\platform\junit-platform-engine\1.12.2\junit-platform-engine-1.12.2.jar;C:\Users\CONTADOR\.m2\repository\org\junit\platform\junit-platform-launcher\1.12.2\junit-platform-launcher-1.12.2.jar;C:\Users\CONTADOR\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.12.2\junit-jupiter-engine-5.12.2.jar"/>
+    <property name="user.script" value=""/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="24.0.2+12"/>
+    <property name="user.name" value="CONTADOR"/>
+    <property name="stdout.encoding" value="Cp1252"/>
+    <property name="path.separator" value=";"/>
+    <property name="os.version" value="10.0"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="jnidispatch.path" value="C:\Users\CONTADOR\AppData\Local\Temp\jna-215176056\jna12279843444985423601.dll"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="java.vendor.version" value="Zulu24.32+13-CA"/>
+    <property name="localRepository" value="C:\Users\CONTADOR\.m2\repository"/>
+    <property name="jna.loaded" value="true"/>
+    <property name="java.vendor.url.bug" value="http://www.azul.com/support/"/>
+    <property name="java.io.tmpdir" value="C:\Users\CONTADOR\AppData\Local\Temp\"/>
+    <property name="java.version" value="24.0.2"/>
+    <property name="user.dir" value="E:\Licify"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="sun.os.patch.level" value=""/>
+    <property name="native.encoding" value="Cp1252"/>
+    <property name="java.library.path" value="C:\Program Files\Apache NetBeans\jdk\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Program Files\BellSoft\LibericaJDK-24-Full\bin\;C:\Program Files\Eclipse Adoptium\jdk-24.0.1.9-hotspot\bin;C:\Program Files\Eclipse Adoptium\jdk-21.0.6.7-hotspot\bin;C:\Program Files (x86)\Embarcadero\Studio\23.0\bin;C:\Users\Public\Documents\Embarcadero\Studio\23.0\Bpl;C:\Program Files (x86)\Embarcadero\Studio\23.0\bin64;C:\Users\Public\Documents\Embarcadero\Studio\23.0\Bpl\Win64;C:\Program Files\BellSoft\LibericaJDK-21-Full\bin\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\WiX Toolset v5.0\bin\;C:\Program Files\Git\cmd;C:\Users\CONTADOR\AppData\Local\Microsoft\WindowsApps;;C:\Program Files\JetBrains\IntelliJ IDEA 2025.1.1.1\bin;;C:\Users\CONTADOR\AppData\Local\Programs\Microsoft VS Code\bin;."/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="stderr.encoding" value="Cp1252"/>
+    <property name="java.vendor" value="Azul Systems, Inc."/>
+    <property name="java.vm.version" value="24.0.2+12"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="68.0"/>
+  </properties>
+  <testcase name="testLicenseBuilder" classname="com.licify.LicifyTest" time="10.196">
+    <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\CONTADOR\.m2\repository\net\bytebuddy\byte-buddy-agent\1.15.11\byte-buddy-agent-1.15.11.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+Loaded {0} revoked licenses from file
+All revocations cleared
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+]]></system-err>
+  </testcase>
+  <testcase name="testExpirationTime" classname="com.licify.LicifyTest" time="0.4">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testVerifyWithSpecificConfig" classname="com.licify.LicifyTest" time="0.648">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testGenerateSeed" classname="com.licify.LicifyTest" time="0.118">
+    <failure message="expected: &lt;USUARIO123&gt; but was: &lt;Pe5iAXZ89HNPvtObT9krMxNrOFptFbnws1kSEoqLEcA=&gt;" type="org.opentest4j.AssertionFailedError"><![CDATA[org.opentest4j.AssertionFailedError: expected: <USUARIO123> but was: <Pe5iAXZ89HNPvtObT9krMxNrOFptFbnws1kSEoqLEcA=>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:177)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1145)
+	at com.licify@1.0/com.licify.LicifyTest.testGenerateSeed(LicifyTest.java:92)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+]]></failure>
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testSignLicense" classname="com.licify.LicifyTest" time="0.369">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testVerifyWithSpecificAlgorithm" classname="com.licify.LicifyTest" time="0.361">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testSetDefaultSignatureConfig" classname="com.licify.LicifyTest" time="0.176">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testVerifyShortKey" classname="com.licify.LicifyTest" time="0.071">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testLicenseRevocation" classname="com.licify.LicifyTest" time="0.131">
+    <system-err><![CDATA[All revocations cleared
+License revoked: {0}
+]]></system-err>
+  </testcase>
+  <testcase name="testVerifySignedLicense" classname="com.licify.LicifyTest" time="0.361">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testCreatePortableLicense" classname="com.licify.LicifyTest" time="0.146">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testDateTimeUtils" classname="com.licify.LicifyTest" time="0.097">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testGenerateKeyPairWithConfig" classname="com.licify.LicifyTest" time="0.562">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testValidShortKeyFormat" classname="com.licify.LicifyTest" time="0.094">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testLicenseFeatures" classname="com.licify.LicifyTest" time="0.329">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testSerializeDeserialize" classname="com.licify.LicifyTest" time="0.179">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testGenerateKeyPair" classname="com.licify.LicifyTest" time="0.339">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testSaveAndLoadBinary" classname="com.licify.LicifyTest" time="0.238">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testCalculatePublicKeyFingerprint" classname="com.licify.LicifyTest" time="0.128">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testGenerateShortKey" classname="com.licify.LicifyTest" time="0.161">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testSaveAndLoadString" classname="com.licify.LicifyTest" time="0.078">
+    <error message="test_license.bin" type="java.nio.file.NoSuchFileException"><![CDATA[java.nio.file.NoSuchFileException: test_license.bin
+	at java.base/sun.nio.fs.WindowsException.translateToIOException(WindowsException.java:85)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:103)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:108)
+	at java.base/sun.nio.fs.WindowsFileSystemProvider.newByteChannel(WindowsFileSystemProvider.java:231)
+	at java.base/java.nio.file.spi.FileSystemProvider.newOutputStream(FileSystemProvider.java:426)
+	at java.base/java.nio.file.Files.newOutputStream(Files.java:215)
+	at java.base/java.nio.file.Files.write(Files.java:3171)
+	at com.licify@1.0/com.licify.Licify.save(Licify.java:989)
+	at com.licify@1.0/com.licify.LicifyTest.testSaveAndLoadString(LicifyTest.java:348)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+]]></error>
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testCreateCommercialLicense" classname="com.licify.LicifyTest" time="0.087">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testVerifyInvalidLicense" classname="com.licify.LicifyTest" time="0.256">
+    <system-out><![CDATA[ERROR: La licencia no tiene firma digital
+]]></system-out>
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testDefaultSignatureConfig" classname="com.licify.LicifyTest" time="0.165">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testIsValidLicense" classname="com.licify.LicifyTest" time="0.28">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testGenerateLicenseId" classname="com.licify.LicifyTest" time="0.134">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+  <testcase name="testCreateTrialLicense" classname="com.licify.LicifyTest" time="0.279">
+    <system-err><![CDATA[All revocations cleared
+]]></system-err>
+  </testcase>
+</testsuite>

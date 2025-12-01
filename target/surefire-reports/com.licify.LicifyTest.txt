@@ -1,0 +1,32 @@
+-------------------------------------------------------------------------------
+Test set: com.licify.LicifyTest
+-------------------------------------------------------------------------------
+Tests run: 27, Failures: 1, Errors: 1, Skipped: 0, Time elapsed: 16.58 s <<< FAILURE! -- in com.licify.LicifyTest
+com.licify.LicifyTest.testGenerateSeed -- Time elapsed: 0.118 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <USUARIO123> but was: <Pe5iAXZ89HNPvtObT9krMxNrOFptFbnws1kSEoqLEcA=>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:177)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1145)
+	at com.licify@1.0/com.licify.LicifyTest.testGenerateSeed(LicifyTest.java:92)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
+com.licify.LicifyTest.testSaveAndLoadString -- Time elapsed: 0.078 s <<< ERROR!
+java.nio.file.NoSuchFileException: test_license.bin
+	at java.base/sun.nio.fs.WindowsException.translateToIOException(WindowsException.java:85)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:103)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:108)
+	at java.base/sun.nio.fs.WindowsFileSystemProvider.newByteChannel(WindowsFileSystemProvider.java:231)
+	at java.base/java.nio.file.spi.FileSystemProvider.newOutputStream(FileSystemProvider.java:426)
+	at java.base/java.nio.file.Files.newOutputStream(Files.java:215)
+	at java.base/java.nio.file.Files.write(Files.java:3171)
+	at com.licify@1.0/com.licify.Licify.save(Licify.java:989)
+	at com.licify@1.0/com.licify.LicifyTest.testSaveAndLoadString(LicifyTest.java:348)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
