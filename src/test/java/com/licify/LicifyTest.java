@@ -8,6 +8,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 public class LicifyTest {
 
-    private static final String TEST_LICENSE_FILE = "test_license.bin";
+    private static final String TEST_LICENSE_FILE = "target/test_license.bin";
     private static final String TEST_PUBLIC_KEY_FILE = "test_public_key.der";
     private static final String TEST_PRIVATE_KEY_FILE = "test_private_key.der";
     
@@ -87,22 +88,36 @@ public class LicifyTest {
     @Test
     @DisplayName("Generación de semillas")
     void testGenerateSeed() {
-        // Test con un solo dato
+        // Test con un solo dato - verificar que genera una semilla criptográfica válida
         String seed1 = Licify.generateSeed("USUARIO123");
-        assertEquals("USUARIO123", seed1);
+        assertNotNull(seed1);
+        assertFalse(seed1.isEmpty());
+        assertTrue(seed1.length() > 20); // Las semillas criptográficas son largas
 
         // Test con múltiples datos
         String seed2 = Licify.generateSeed("USUARIO123", "PRODUCTO001", "2025");
-        assertEquals("USUARIO123:PRODUCTO001:2025", seed2);
+        assertNotNull(seed2);
+        assertFalse(seed2.isEmpty());
+        assertTrue(seed2.length() > 20);
 
         // Test con varios datos
         String seed3 = Licify.generateSeed("EMPRESA_S.A.", "CLIENTE_001", "SUBSCRIPTOR", "2025");
-        assertEquals("EMPRESA_S.A.:CLIENTE_001:SUBSCRIPTOR:2025", seed3);
+        assertNotNull(seed3);
+        assertFalse(seed3.isEmpty());
+        assertTrue(seed3.length() > 20);
 
         // Test con null
         String seed4 = Licify.generateSeed((String[]) null);
         assertNotNull(seed4);
-        assertTrue(seed4.startsWith("DEFAULT_SEED_"));
+
+        // Verificar que diferentes entradas generan diferentes semillas
+        assertNotEquals(seed1, seed2);
+        assertNotEquals(seed2, seed3);
+
+        // Verificar que la semilla generada con null es diferente a las otras
+        assertNotEquals(seed1, seed4);
+        assertNotEquals(seed2, seed4);
+        assertNotEquals(seed3, seed4);
     }
 
     @Test
@@ -332,6 +347,13 @@ public class LicifyTest {
     @Test
     @DisplayName("Guardado y carga de licencia en formato string")
     void testSaveAndLoadString() throws Exception {
+        // Asegurar que el directorio padre del archivo existe
+        File testFile = new File(TEST_LICENSE_FILE);
+        File parentDir = testFile.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
         License license = Licify.createCommercialLicense(
             "Empresa S.A.",
             "contacto@empresa.com",
@@ -340,16 +362,19 @@ public class LicifyTest {
             LocalDateTime.now().plusDays(365),
             100
         );
-        
+
         // Firmar licencia
         License signedLicense = Licify.sign(license, privateKey, publicKey);
-        
+
         // Guardar licencia en formato string
         Licify.save(signedLicense, TEST_LICENSE_FILE, IOFormat.STRING);
-        
+
+        // Verificar que el archivo se creó
+        assertTrue(testFile.exists(), "El archivo de prueba debería existir");
+
         // Cargar licencia
         License loadedLicense = Licify.load(TEST_LICENSE_FILE, IOFormat.STRING);
-        
+
         // Verificar que los datos sean iguales
         assertEquals(signedLicense.getLicenseeName(), loadedLicense.getLicenseeName());
         assertEquals(signedLicense.getLicenseKey(), loadedLicense.getLicenseKey());
