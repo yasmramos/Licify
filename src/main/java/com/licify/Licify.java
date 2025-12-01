@@ -986,9 +986,13 @@ public class Licify {
                 break;
 
             case STRING:
-                // Guardar como texto serializado
+                // Guardar como texto serializado usando FileOutputStream
                 String content = serializeLicenseWithMetadata(license);
-                Files.write(path, content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
+                try (FileOutputStream fos = new FileOutputStream(path.toFile()); 
+                     OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                     BufferedWriter writer = new BufferedWriter(osw)) {
+                    writer.write(content);
+                }
                 break;
 
             default:
