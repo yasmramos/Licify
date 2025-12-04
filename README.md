@@ -1,138 +1,138 @@
-# Licify - Biblioteca Java para Gestión de Licencias
+# Licify - Java License Management Library
 
-## Descripción
-Licify es una biblioteca Java robusta para la gestión de licencias de software, que proporciona funcionalidades avanzadas de encriptación híbrida, firmas digitales, validación de hardware y múltiples formatos de serialización.
+## Description
+Licify is a robust Java library for software license management, providing advanced functionalities of hybrid encryption, digital signatures, hardware validation, and multiple serialization formats.
 
-## Estado Actual
-- ✅ **Tests**: 27/27 pasando (100% éxito)
-- ✅ **Compilación**: BUILD SUCCESS
-- ✅ **Cobertura**: Reportes JaCoCo generados
-- ✅ **GitHub**: Repositorio sincronizado
+## Current Status
+- ✅ **Tests**: 27/27 passing (100% success)
+- ✅ **Compilation**: BUILD SUCCESS
+- ✅ **Coverage**: JaCoCo reports generated
+- ✅ **GitHub**: Repository synchronized
 
-## Características Principales
+## Main Features
 
-### 🔒 Encriptación Híbrida
-- Combinación de algoritmos simétricos (AES) y asimétricos (RSA)
-- Configuración flexible de parámetros de seguridad
-- Soporte para múltiples tamaños de clave
+### 🔒 Hybrid Encryption
+- Combination of symmetric (AES) and asymmetric (RSA) algorithms
+- Flexible security parameter configuration
+- Support for multiple key sizes
 
-### ✍️ Firmas Digitales
-- Validación criptográfica de integridad
-- Configuración personalizable de algoritmos
-- Verificación automática de autenticidad
+### ✍️ Digital Signatures
+- Cryptographic integrity validation
+- Customizable algorithm configuration
+- Automatic authenticity verification
 
-### 🖥️ Identificación de Hardware
-- Binding de licencias a hardware específico
-- Múltiples componentes de hardware analizados
-- Respaldo de configuración de hardware
+### 🖥️ Hardware Identification
+- License binding to specific hardware
+- Multiple hardware components analyzed
+- Hardware configuration backup
 
-### 📝 Múltiples Formatos
-- BINARIO: Para máxima eficiencia
-- STRING: Para legibilidad humana
-- XML: Para interoperabilidad
-- PROPERTIES: Para configuración
+### 📝 Multiple Formats
+- BINARY: For maximum efficiency
+- STRING: For human readability
+- XML: For interoperability
+- PROPERTIES: For configuration
 
-### 🧬 Generación de Semillas
-- Semillas criptográficas determinísticas
-- Múltiples algoritmos de hash (SHA-256/384/512)
-- Entropía del sistema incluida
+### 🧬 Seed Generation
+- Deterministic cryptographic seeds
+- Multiple hash algorithms (SHA-256/384/512)
+- System entropy included
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 Licify/
 ├── src/
 │   ├── main/java/com/licify/
-│   │   ├── Licify.java              # API principal
-│   │   ├── LicenseKeyPair.java      # Gestión de claves
-│   │   ├── SeedGenerator.java       # Semillas criptográficas
-│   │   ├── core/                    # Funcionalidades centrales
-│   │   ├── encryption/              # Encriptación híbrida
-│   │   ├── signing/                 # Firmas digitales
-│   │   ├── hardware/                # Identificación HW
-│   │   ├── io/                      # Formatos E/S
-│   │   ├── util/                    # Utilidades
-│   │   └── exception/               # Excepciones
+│   │   ├── Licify.java              # Main API
+│   │   ├── LicenseKeyPair.java      # Key management
+│   │   ├── SeedGenerator.java       # Cryptographic seeds
+│   │   ├── core/                    # Core functionalities
+│   │   ├── encryption/              # Hybrid encryption
+│   │   ├── signing/                 # Digital signatures
+│   │   ├── hardware/                # HW identification
+│   │   ├── io/                      # I/O formats
+│   │   ├── util/                    # Utilities
+│   │   └── exception/               # Exceptions
 │   └── test/java/com/licify/
-│       └── LicifyTest.java          # Suite de tests
-├── target/                          # Archivos compilados
-├── pom.xml                          # Configuración Maven
-└── module-info.java                 # Definición de módulo
+│       └── LicifyTest.java          # Test suite
+├── target/                          # Compiled files
+├── pom.xml                          # Maven configuration
+└── module-info.java                 # Module definition
 ```
 
-## Inicio Rápido
+## Quick Start
 
-### Prerequisitos
-- Java 17 o superior
-- Maven 3.8 o superior
+### Prerequisites
+- Java 17 or higher
+- Maven 3.8 or higher
 
-### Compilación
+### Compilation
 ```bash
 mvn clean compile
 ```
 
-### Ejecución de Tests
+### Test Execution
 ```bash
 mvn test
 ```
 
-### Compilación y Tests
+### Build and Tests
 ```bash
 mvn clean install
 ```
 
-## Ejemplos de Uso
+## Usage Examples
 
-### Crear una Licencia
+### Create a License
 ```java
 Licify licify = new Licify();
 
-// Crear licencia básica
+// Create basic license
 License license = licify.createLicense()
-    .withProductName("Mi Producto")
+    .withProductName("My Product")
     .withVersion("1.0.0")
-    .withUserId("usuario123")
+    .withUserId("user123")
     .withExpiryDate(LocalDateTime.now().plusYears(1))
     .build();
 
-// Guardar licencia
-licify.saveLicense(license, "mi_licencia.lic", IOFormat.BINARY);
+// Save license
+licify.saveLicense(license, "my_license.lic", IOFormat.BINARY);
 ```
 
-### Validar una Licencia
+### Validate a License
 ```java
-License license = licify.loadLicense("mi_licencia.lic", IOFormat.BINARY);
+License license = licify.loadLicense("my_license.lic", IOFormat.BINARY);
 ValidationResult result = licify.validateLicense(license);
 if (result.isValid()) {
-    System.out.println("Licencia válida");
+    System.out.println("Valid license");
 } else {
-    System.out.println("Licencia inválida: " + result.getErrors());
+    System.out.println("Invalid license: " + result.getErrors());
 }
 ```
 
-### Encriptar Datos
+### Encrypt Data
 ```java
-HybridEncryptionResult result = licify.encryptData("datos sensibles");
+HybridEncryptionResult result = licify.encryptData("sensitive data");
 String encryptedData = result.getEncryptedData();
 String decryptionKey = result.getDecryptionKey();
 ```
 
-## Tests y Calidad
+## Tests and Quality
 
-### Cobertura de Tests
+### Test Coverage
 - **Total**: 27 tests
-- **Éxito**: 27 tests
-- **Fallos**: 0 tests
-- **Tiempo**: 6.559s
+- **Success**: 27 tests
+- **Failures**: 0 tests
+- **Time**: 6.559s
 
-### Reportes Generados
-- `target/surefire-reports/` - Reportes de tests
-- `target/site/jacoco/` - Análisis de cobertura HTML
-- `target/jacoco.exec` - Datos de ejecución
+### Generated Reports
+- `target/surefire-reports/` - Test reports
+- `target/site/jacoco/` - HTML coverage analysis
+- `target/jacoco.exec` - Execution data
 
-## Configuración Maven
+## Maven Configuration
 
-### Dependencia
+### Dependency
 ```xml
 <dependency>
     <groupId>com.licify</groupId>
@@ -141,37 +141,37 @@ String decryptionKey = result.getDecryptionKey();
 </dependency>
 ```
 
-### Plugins Configurados
+### Configured Plugins
 - **Maven Compiler Plugin**: Java 17
-- **Maven Surefire Plugin**: Ejecución de tests
-- **JaCoCo Plugin**: Análisis de cobertura
-- **Maven JAR Plugin**: Empaquetado
+- **Maven Surefire Plugin**: Test execution
+- **JaCoCo Plugin**: Coverage analysis
+- **Maven JAR Plugin**: Packaging
 
-## Correcciones Recientes
+## Recent Fixes
 
 ### Test `testGenerateSeed`
-- ✅ **Corregido**: Validación de semillas criptográficas en lugar de texto plano
-- **Impacto**: Tests ahora validan propiedades criptográficas apropiadas
+- ✅ **Fixed**: Validation of cryptographic seeds instead of plain text
+- **Impact**: Tests now validate appropriate cryptographic properties
 
 ### Test `testSaveAndLoadString`
-- ✅ **Corregido**: Eliminación de NoSuchFileException
-- **Solución**: Cambio de Files.write() a FileOutputStream + BufferedWriter
-- **Impacto**: Formato STRING ahora funciona correctamente
+- ✅ **Fixed**: NoSuchFileException elimination
+- **Solution**: Changed from Files.write() to FileOutputStream + BufferedWriter
+- **Impact**: STRING format now works correctly
 
-## Assets Disponibles
+## Available Assets
 
-1. **`Licify-Fuente-Completo.zip`** - Código fuente completo con correcciones
-2. **`Licify-Codigo-Java.zip`** - Solo código Java y configuración esencial
-3. **`Licify-Dependencias-Compiladas.zip`** - Archivos compilados y reportes
-4. **`ASSETS-DOCUMENTACION.md`** - Documentación completa de assets
+1. **`Licify-Fuente-Completo.zip`** - Complete source code with fixes
+2. **`Licify-Codigo-Java.zip`** - Java code only and essential configuration
+3. **`Licify-Dependencias-Compiladas.zip`** - Compiled files and reports
+4. **`ASSETS-DOCUMENTACION.md`** - Complete assets documentation
 
-## Repositorio
+## Repository
 - **GitHub**: https://github.com/yasmramos/Licify
-- **Estado**: Sincronizado con últimas correcciones
+- **Status**: Synchronized with latest fixes
 
-## Licencia
-Proyecto de código abierto para fines educativos y de desarrollo.
+## License
+Open source project for educational and development purposes.
 
 ---
 
-**Desarrollado por MiniMax Agent** - Asistente de desarrollo IA especializado en proyectos Java
+**Developed by yasmramos** - Java project developer specializing in license management systems
