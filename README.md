@@ -1,177 +1,340 @@
-# Licify - Java License Management Library
+# Licify - Java License Management Library 2.0
 
-## Description
-Licify is a robust Java library for software license management, providing advanced functionalities of hybrid encryption, digital signatures, hardware validation, and multiple serialization formats.
+[![Java CI with Maven](https://github.com/yasmramos/Licify/actions/workflows/maven.yml/badge.svg)](https://github.com/yasmramos/Licify/actions/workflows/maven.yml)
+[![Maven Central](https://img.shields.io/badge/Maven%20Central-2.0.0-blue.svg)](https://central.sonatype.com/artifact/com.licify/licify)
+[![Java Version](https://img.shields.io/badge/Java-17%2B-green.svg)](https://adoptium.net/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Current Status
-- ✅ **Tests**: 27/27 passing (100% success)
-- ✅ **Compilation**: BUILD SUCCESS
-- ✅ **Coverage**: JaCoCo reports generated
-- ✅ **GitHub**: Repository synchronized
+## 📖 Descripción
 
-## Main Features
+**Licify** es una biblioteca Java robusta y moderna para la gestión de licencias de software, que proporciona funcionalidades avanzadas de encriptación híbrida (AES+RSA), firmas digitales, validación de hardware y múltiples formatos de serialización.
 
-### 🔒 Hybrid Encryption
-- Combination of symmetric (AES) and asymmetric (RSA) algorithms
-- Flexible security parameter configuration
-- Support for multiple key sizes
+### ✨ Novedades en la Versión 2.0
 
-### ✍️ Digital Signatures
-- Cryptographic integrity validation
-- Customizable algorithm configuration
-- Automatic authenticity verification
+- ✅ **Java 17+:** Actualizado a las últimas características del lenguaje
+- ✅ **CI/CD Completo:** GitHub Actions con builds multi-versión (Java 17 y 21)
+- ✅ **Publicación Automática:** Configurado para Maven Central
+- ✅ **Mejor Documentación:** Javadocs completos y ejemplos detallados
+- ✅ **Nuevas Funcionalidades:** Licencias flotantes, sistema de actualización automática
+- ✅ **Calidad de Código:** Checkstyle, JaCoCo coverage >40%
 
-### 🖥️ Hardware Identification
-- License binding to specific hardware
-- Multiple hardware components analyzed
-- Hardware configuration backup
+## 🚀 Características Principales
 
-### 📝 Multiple Formats
-- BINARY: For maximum efficiency
-- STRING: For human readability
-- XML: For interoperability
-- PROPERTIES: For configuration
+### 🔒 Encriptación Híbrida
+- Combinación de algoritmos simétricos (AES-256) y asimétricos (RSA-2048/3072/4096)
+- Configuración flexible de parámetros de seguridad
+- Soporte para múltiples tamaños de clave
+- Gestión segura de claves de sesión
 
-### 🧬 Seed Generation
-- Deterministic cryptographic seeds
-- Multiple hash algorithms (SHA-256/384/512)
-- System entropy included
+### ✍️ Firmas Digitales
+- Validación criptográfica de integridad
+- Algoritmos configurables (SHA256withRSA, SHA384withRSA, SHA512withRSA)
+- Verificación automática de autenticidad
+- Huella digital de clave pública
 
-## Project Structure
+### 🖥️ Identificación de Hardware
+- Vinculación de licencias a hardware específico
+- Análisis de múltiples componentes (CPU, motherboard, disco, MAC)
+- Backup de configuración de hardware
+- Tolerancia a cambios menores de hardware
 
-```
-Licify/
-├── src/
-│   ├── main/java/com/licify/
-│   │   ├── Licify.java              # Main API
-│   │   ├── LicenseKeyPair.java      # Key management
-│   │   ├── SeedGenerator.java       # Cryptographic seeds
-│   │   ├── core/                    # Core functionalities
-│   │   ├── encryption/              # Hybrid encryption
-│   │   ├── signing/                 # Digital signatures
-│   │   ├── hardware/                # HW identification
-│   │   ├── io/                      # I/O formats
-│   │   ├── util/                    # Utilities
-│   │   └── exception/               # Exceptions
-│   └── test/java/com/licify/
-│       └── LicifyTest.java          # Test suite
-├── target/                          # Compiled files
-├── pom.xml                          # Maven configuration
-└── module-info.java                 # Module definition
-```
+### 📝 Múltiples Formatos
+- **BINARY:** Máxima eficiencia y compactación
+- **STRING:** Legibilidad humana (Base64)
+- **XML:** Interoperabilidad con sistemas externos
+- **PROPERTIES:** Integración con archivos de configuración
 
-## Quick Start
+### 🔄 Sistema de Revocación
+- Lista negra de licencias revocadas
+- Persistencia en archivo JSON
+- Verificación en tiempo real
+- Limpieza programada
 
-### Prerequisites
-- Java 17 or higher
-- Maven 3.8 or higher
+### 🎯 Generación de Seeds
+- Seeds criptográficos determinísticos
+- Múltiples algoritmos hash (SHA-256/384/512)
+- Entropía del sistema incluida
+- Ideal para licencias offline
 
-### Compilation
-```bash
-mvn clean compile
-```
+## 📦 Instalación
 
-### Test Execution
-```bash
-mvn test
-```
+### Maven
 
-### Build and Tests
-```bash
-mvn clean install
-```
-
-## Usage Examples
-
-### Create a License
-```java
-Licify licify = new Licify();
-
-// Create basic license
-License license = licify.createLicense()
-    .withProductName("My Product")
-    .withVersion("1.0.0")
-    .withUserId("user123")
-    .withExpiryDate(LocalDateTime.now().plusYears(1))
-    .build();
-
-// Save license
-licify.saveLicense(license, "my_license.lic", IOFormat.BINARY);
-```
-
-### Validate a License
-```java
-License license = licify.loadLicense("my_license.lic", IOFormat.BINARY);
-ValidationResult result = licify.validateLicense(license);
-if (result.isValid()) {
-    System.out.println("Valid license");
-} else {
-    System.out.println("Invalid license: " + result.getErrors());
-}
-```
-
-### Encrypt Data
-```java
-HybridEncryptionResult result = licify.encryptData("sensitive data");
-String encryptedData = result.getEncryptedData();
-String decryptionKey = result.getDecryptionKey();
-```
-
-## Tests and Quality
-
-### Test Coverage
-- **Total**: 27 tests
-- **Success**: 27 tests
-- **Failures**: 0 tests
-- **Time**: 6.559s
-
-### Generated Reports
-- `target/surefire-reports/` - Test reports
-- `target/site/jacoco/` - HTML coverage analysis
-- `target/jacoco.exec` - Execution data
-
-## Maven Configuration
-
-### Dependency
 ```xml
 <dependency>
     <groupId>com.licify</groupId>
     <artifactId>licify</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
-### Configured Plugins
-- **Maven Compiler Plugin**: Java 17
-- **Maven Surefire Plugin**: Test execution
-- **JaCoCo Plugin**: Coverage analysis
-- **Maven JAR Plugin**: Packaging
+### Gradle
 
-## Recent Fixes
+```groovy
+implementation 'com.licify:licify:2.0.0'
+```
 
-### Test `testGenerateSeed`
-- ✅ **Fixed**: Validation of cryptographic seeds instead of plain text
-- **Impact**: Tests now validate appropriate cryptographic properties
+### Requisitos Previos
+- **Java:** 17 o superior
+- **Maven:** 3.8+ (para construcción)
 
-### Test `testSaveAndLoadString`
-- ✅ **Fixed**: NoSuchFileException elimination
-- **Solution**: Changed from Files.write() to FileOutputStream + BufferedWriter
-- **Impact**: STRING format now works correctly
+## ⚡ Inicio Rápido
 
-## Available Assets
+### 1. Generar Par de Claves
 
-1. **`Licify-Fuente-Completo.zip`** - Complete source code with fixes
-2. **`Licify-Codigo-Java.zip`** - Java code only and essential configuration
-3. **`Licify-Dependencias-Compiladas.zip`** - Compiled files and reports
-4. **`ASSETS-DOCUMENTACION.md`** - Complete assets documentation
+```java
+import com.licify.LicenseKeyPair;
+import java.security.KeyPair;
 
-## Repository
-- **GitHub**: https://github.com/yasmramos/Licify
-- **Status**: Synchronized with latest fixes
+// Generar par de claves RSA
+KeyPair keyPair = LicenseKeyPair.generateKeyPair(2048);
 
-## License
-Open source project for educational and development purposes.
+// Guardar claves
+LicenseKeyPair.saveKeyPair(keyPair, "keys/");
+```
+
+### 2. Crear una Licencia
+
+```java
+import com.licify.Licify;
+import com.licify.Licify.License;
+import java.time.LocalDateTime;
+
+Licify licify = new Licify();
+
+License license = new Licify.LicenseBuilder()
+    .licenseeName("Juan Pérez")
+    .licenseeEmail("juan@example.com")
+    .productId("MYPRODUCT-001")
+    .productVersion("1.0.0")
+    .expirationDate(LocalDateTime.now().plusYears(1))
+    .maxUsers(10)
+    .feature("premium-support")
+    .feature("cloud-sync")
+    .licenseType("COMMERCIAL")
+    .hardwareId()  // Usa el hardware actual
+    .build();
+```
+
+### 3. Firmar la Licencia
+
+```java
+import java.security.KeyPair;
+
+// Cargar clave privada
+KeyPair keyPair = LicenseKeyPair.loadKeyPair("keys/");
+
+// Firmar licencia
+licify.sign(license, keyPair);
+
+System.out.println("Licencia firmada: " + license.getSignature());
+```
+
+### 4. Guardar Licencia
+
+```java
+import com.licify.io.IOFormat;
+
+// Guardar en formato binario
+licify.save(license, "license.bin", IOFormat.BINARY);
+
+// O guardar en formato XML
+licify.save(license, "license.xml", IOFormat.XML);
+```
+
+### 5. Cargar y Validar Licencia
+
+```java
+import com.licify.Licify.ValidationResult;
+
+// Cargar licencia
+License loadedLicense = licify.load("license.bin", IOFormat.BINARY);
+
+// Validar firma
+ValidationResult result = licify.validateSignature(loadedLicense, keyPair.getPublic());
+if (result.isValid()) {
+    System.out.println("✅ Licencia válida");
+} else {
+    System.err.println("❌ Licencia inválida: " + result.getErrors());
+}
+
+// Verificar expiración
+if (loadedLicense.isExpired()) {
+    System.err.println("⚠️ Licencia expirada");
+}
+
+// Verificar hardware
+boolean hardwareMatch = licify.validateHardwareId(loadedLicense);
+if (!hardwareMatch) {
+    System.err.println("⚠️ Hardware no coincide");
+}
+```
+
+## 🔧 Configuración Avanzada
+
+### Configurar Encriptación Personalizada
+
+```java
+import com.licify.encryption.EncryptionConfig;
+
+EncryptionConfig config = new EncryptionConfig.Builder()
+    .setKeySize(4096)           // RSA 4096 bits
+    .setAesKeySize(256)         // AES 256 bits
+    .setTransformation("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
+    .build();
+
+licify.setDefaultEncryptionConfig(config);
+```
+
+### Configurar Firma Digital
+
+```java
+import com.licify.signing.SignatureConfig;
+
+SignatureConfig sigConfig = new SignatureConfig.Builder()
+    .algorithm("SHA512withRSA")
+    .provider("SunRsaSign")
+    .hashAlgorithm("SHA-512")
+    .build();
+
+licify.setDefaultSignatureConfig(sigConfig);
+```
+
+### Licencias Flotantes (Network)
+
+```java
+// Crear licencia flotante para red
+License floatingLicense = new Licify.LicenseBuilder()
+    .licenseeName("Empresa S.A.")
+    .productId("NETWORK-LICENSE")
+    .maxUsers(50)  // 50 usuarios concurrentes
+    .licenseType("FLOATING")
+    .customData("{\"server\":\"license-server.example.com\",\"port\":27000}")
+    .build();
+```
+
+## 🧪 Ejecución de Tests
+
+```bash
+# Compilar proyecto
+mvn clean compile
+
+# Ejecutar tests
+mvn test
+
+# Generar reporte de cobertura
+mvn jacoco:report
+
+# Verificar calidad de código
+mvn verify
+
+# Build completo
+mvn clean install
+```
+
+Los reportes se generan en:
+- `target/surefire-reports/` - Resultados de tests
+- `target/site/jacoco/` - Cobertura de código HTML
+- `target/jacoco.exec` - Datos de ejecución
+
+## 📊 Estructura del Proyecto
+
+```
+Licify/
+├── src/main/java/com/licify/
+│   ├── Licify.java              # API principal
+│   ├── LicenseKeyPair.java      # Gestión de claves
+│   ├── SeedGenerator.java       # Generación de seeds
+│   ├── Main.java                # Punto de entrada
+│   ├── core/                    # Funcionalidades core
+│   │   ├── LicenseSerializer.java
+│   │   ├── LicenseRevocationManager.java
+│   │   └── ShortLicenseKey.java
+│   ├── encryption/              # Encriptación híbrida
+│   │   ├── HybridEncryption.java
+│   │   ├── EncryptionConfig.java
+│   │   └── HybridEncryptionResult.java
+│   ├── signing/                 # Firmas digitales
+│   │   ├── DigitalSignature.java
+│   │   └── SignatureConfig.java
+│   ├── hardware/                # Identificación HW
+│   │   ├── HardwareId.java
+│   │   └── HardwareIdBackup.java
+│   ├── io/                      # Formatos I/O
+│   │   └── IOFormat.java
+│   ├── util/                    # Utilidades
+│   │   ├── KeyUtils.java
+│   │   └── DateTimeUtils.java
+│   └── exception/               # Excepciones
+│       └── ValidationException.java
+├── src/test/java/com/licify/
+│   └── LicifyTest.java          # Suite de tests
+├── .github/workflows/
+│   └── maven.yml                # CI/CD pipeline
+├── pom.xml                      # Configuración Maven
+└── README.md                    # Esta documentación
+```
+
+## 🏗️ CI/CD Pipeline
+
+El proyecto incluye un pipeline completo de GitHub Actions que:
+
+1. **Build Multi-Versión:** Compila con Java 17 y 21
+2. **Tests Automatizados:** Ejecuta 27 tests unitarios
+3. **Cobertura:** Genera reportes JaCoCo
+4. **Calidad:** Ejecuta Checkstyle y Javadoc
+5. **Publicación:** Despliega a Maven Central en releases
+
+### Secrets Requeridos para Publicación
+
+Para habilitar la publicación automática, configura estos secrets en GitHub:
+
+- `OSSRH_USERNAME`: Usuario de Sonatype OSSRH
+- `OSSRH_TOKEN`: Token de Sonatype OSSRH
+- `GPG_PRIVATE_KEY`: Clave privada GPG (armored)
+- `GPG_PASSPHRASE`: Passphrase de la clave GPG
+
+## 📈 Métricas de Calidad
+
+| Métrica | Valor | Umbral |
+|---------|-------|--------|
+| Tests Passing | 27/27 (100%) | ✅ |
+| Coverage Líneas | >40% | ✅ |
+| Coverage Complejidad | >30% | ✅ |
+| Compilation | SUCCESS | ✅ |
+| Java Version | 17+ | ✅ |
+
+## 🤝 Contribuir
+
+Las contribuciones son bienvenidas. Por favor:
+
+1. Fork el repositorio
+2. Crea una rama (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -am 'Añadir nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
+
+## 👨‍💻 Autor
+
+**Yasmin Ramos** - [yasmramos](https://github.com/yasmramos)
+
+## 🔗 Enlaces Útiles
+
+- [Repositorio GitHub](https://github.com/yasmramos/Licify)
+- [Maven Central](https://central.sonatype.com/search?q=com.licify)
+- [Documentación Javadoc](https://yasmramos.github.io/Licify/apidocs/)
+- [Issue Tracker](https://github.com/yasmramos/Licify/issues)
 
 ---
 
-**Developed by yasmramos** - Java project developer specializing in license management systems
+<div align="center">
+
+**Desarrollado con ☕ Java y ❤️**
+
+[⬆️ Volver arriba](#licify---java-license-management-library-20)
+
+</div>
