@@ -1,41 +1,30 @@
 ```
-# Compiled and build artifacts
+# Compiled Java files
 *.class
-*.o
-*.obj
-*.out
-build/
+
+# Build directories
 target/
+build/
 
 # Dependencies
 lib/
 libs/
-dependency/
-dependencies/
 
-# Logs and temp files
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Logs
 *.log
-*.tmp
-*.swp
 
 # Environment
 .env
 .env.local
 *.env.*
 
-# Editors
-.vscode/
-.idea/
-*.iml
-*.ipr
-*.iws
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Test coverage
-coverage/
-htmlcov/
-.coverage
+# Temporary files
+*.tmp
+*.temp
 ```
