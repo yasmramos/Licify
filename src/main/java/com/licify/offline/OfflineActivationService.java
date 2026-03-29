@@ -3,6 +3,7 @@ package com.licify.offline;
 import com.licify.Licify.License;
 import com.licify.signing.DigitalSignature;
 import com.licify.LicenseKeyPair;
+import java.security.KeyPair;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,10 +31,10 @@ public class OfflineActivationService {
         }
 
         // Get key pair from Licify or use default
-        LicenseKeyPair keyPair = LicenseKeyPair.generate();
+        KeyPair keyPair = LicenseKeyPair.generateRSAKeys(2048);
         
         String rawData = license.getLicenseKey() + "|" + fingerprint + "|" + System.currentTimeMillis();
-        String signature = DigitalSignature.signSHA512(rawData, keyPair.getPrivateKey());
+        String signature = DigitalSignature.signSHA512(rawData, keyPair.getPrivate());
         
         return Base64.getEncoder().encodeToString((rawData + "::" + signature).getBytes());
     }
@@ -71,10 +72,10 @@ public class OfflineActivationService {
         String signature = parts[1];
 
         // Get key pair to verify signature  
-        LicenseKeyPair keyPair = LicenseKeyPair.generate();
+        KeyPair keyPair = LicenseKeyPair.generateRSAKeys(2048);
         
         // Verify signature using public key
-        boolean isValid = DigitalSignature.verifySHA512(data, signature, keyPair.getPublicKey());
+        boolean isValid = DigitalSignature.verifySHA512(data, signature, keyPair.getPublic());
         
         if (!isValid) {
             throw new SecurityException("Invalid activation response signature");
