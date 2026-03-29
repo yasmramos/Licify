@@ -1,7 +1,5 @@
 package com.licify.security;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -75,8 +73,7 @@ public class TamperDetection {
      */
     public static boolean detectDebugger() {
         try {
-            ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
-            long start = threadBean.getCurrentThreadCpuTime();
+            long start = System.nanoTime();
             
             // Perform a simple operation
             int sum = 0;
@@ -84,7 +81,7 @@ public class TamperDetection {
                 sum += i;
             }
             
-            long end = threadBean.getCurrentThreadCpuTime();
+            long end = System.nanoTime();
             long duration = end - start;
             
             // If the operation takes unusually long, a debugger might be attached
