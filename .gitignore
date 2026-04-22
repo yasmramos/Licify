@@ -1,46 +1,41 @@
 ```
-# Compiled and build artifacts
-*.class
-*.o
-*.obj
-*.out
-*.exe
-*.dll
-*.so
-*.a
-
-# Dependencies
+# Java/Maven build artifacts
 target/
-.gradle/
-**/node_modules/
-**/venv/
-**/.venv/
-**/__pycache__/
-**/.mypy_cache/
-**/.pytest_cache/
+*.class
+*.jar
+*.war
+*.ear
 
-# Logs and temp files
+# Maven-specific
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Generated files
+*.jks
+*.keystore
+
+# Logs
 *.log
-*.tmp
-*.swp
 
-# Environment
+# Environment specific
 .env
 .env.local
 *.env.*
 
-# Editors
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# System
+# OS generated files
 .DS_Store
 Thumbs.db
 ```
