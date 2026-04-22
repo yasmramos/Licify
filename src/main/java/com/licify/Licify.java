@@ -263,6 +263,37 @@ public class Licify {
             this.trial = isTrial;
         }
 
+        /**
+         * Builder interno para crear licencias de forma fluida
+         */
+        public static class Builder extends LicenseBuilder {
+            
+            public Builder(String licenseKey, String licenseeName) {
+                super();
+                license.setLicenseKey(licenseKey);
+                license.setLicenseeName(licenseeName);
+            }
+            
+            /**
+             * Método helper para aceptar Date en lugar de LocalDateTime
+             */
+            public Builder setIssueDate(java.util.Date issueDate) {
+                if (issueDate != null) {
+                    issueDate(issueDate.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
+                }
+                return this;
+            }
+            
+            /**
+             * Método helper para aceptar Date en lugar de LocalDateTime
+             */
+            public Builder setExpirationDate(java.util.Date expirationDate) {
+                if (expirationDate != null) {
+                    expirationDate(expirationDate.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
+                }
+                return this;
+            }
+        }
     }
 
     /**
@@ -270,7 +301,7 @@ public class Licify {
      */
     public static class LicenseBuilder {
 
-        private final License license;
+        protected final License license;
 
         public LicenseBuilder() {
             this.license = new License();
@@ -293,6 +324,11 @@ public class Licify {
 
         public LicenseBuilder productVersion(String productVersion) {
             license.setProductVersion(productVersion);
+            return this;
+        }
+
+        public LicenseBuilder issueDate(LocalDateTime issueDate) {
+            license.setIssueDate(issueDate);
             return this;
         }
 
