@@ -332,20 +332,25 @@ public class FloatingLicenseManager {
      * Saves sessions to JSON file using Jackson.
      */
     private void saveSessions() {
+        lock.writeLock().lock();
         try {
-            String json = objectMapper.writeValueAsString(activeSessions.values());
-            Files.writeString(sessionsFilePath, json);
+            List<SessionInfo> sessionsList = new ArrayList<>(activeSessions.values());
+            String json = objectMapper.writeValueAsString(sessionsList);
+            Files.writeString(sessionsFilePath, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             logger.debug("Saved {} active sessions to {}", activeSessions.size(), sessionsFilePath);
         } catch (IOException e) {
             logger.error("Failed to save sessions: {}", e.getMessage(), e);
+        } finally {
+            lock.writeLock().unlock();
         }
     }
     
     /**
      * Loads sessions from JSON file using Jackson.
+     * Package-private for testing purposes.
      */
     @SuppressWarnings("unchecked")
-    private void loadSessions() {
+    void loadSessions() {
         if (!Files.exists(sessionsFilePath)) {
             logger.debug("Sessions file not found: {}", sessionsFilePath);
             return;
@@ -353,9 +358,9 @@ public class FloatingLicenseManager {
         
         try {
             String content = Files.readString(sessionsFilePath);
-            Collection<SessionInfo> sessions = objectMapper.readValue(
+            List<SessionInfo> sessions = objectMapper.readValue(
                 content, 
-                objectMapper.getTypeFactory().constructCollectionType(Collection.class, SessionInfo.class)
+                objectMapper.getTypeFactory().constructCollectionType(List.class, SessionInfo.class)
             );
             
             activeSessions.clear();
