@@ -4,6 +4,8 @@ import com.licify.Licify.License;
 import com.licify.signing.DigitalSignature;
 import com.licify.LicenseKeyPair;
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +17,23 @@ import java.util.Base64;
  * Useful for air-gapped systems or environments without direct internet access.
  */
 public class OfflineActivationService {
+
+    private KeyPair adminKeyPair;
+    private PublicKey administratorPublicKey;
+
+    public OfflineActivationService() {
+        try {
+            this.adminKeyPair = LicenseKeyPair.generateRSAKeys(2048);
+            this.administratorPublicKey = this.adminKeyPair.getPublic();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize admin key pair", e);
+        }
+    }
+
+    public OfflineActivationService(KeyPair adminKeyPair) {
+        this.adminKeyPair = adminKeyPair;
+        this.administratorPublicKey = adminKeyPair.getPublic();
+    }
 
     /**
      * Generates an activation request file content based on the license and machine fingerprint.
@@ -30,11 +49,11 @@ public class OfflineActivationService {
             throw new IllegalArgumentException("License and fingerprint cannot be null");
         }
 
-        // Get key pair from Licify or use default
-        KeyPair keyPair = LicenseKeyPair.generateRSAKeys(2048);
+        // Use admin key pair to sign the request
+        PrivateKey privateKey = adminKeyPair.getPrivate();
         
         String rawData = license.getLicenseKey() + "|" + fingerprint + "|" + System.currentTimeMillis();
-        String signature = DigitalSignature.signSHA512(rawData, keyPair.getPrivate());
+        String signature = DigitalSignature.signSHA512(rawData, privateKey);
         
         return Base64.getEncoder().encodeToString((rawData + "::" + signature).getBytes());
     }
@@ -71,11 +90,8 @@ public class OfflineActivationService {
         String data = parts[0];
         String signature = parts[1];
 
-        // Get key pair to verify signature  
-        KeyPair keyPair = LicenseKeyPair.generateRSAKeys(2048);
-        
-        // Verify signature using public key
-        boolean isValid = DigitalSignature.verifySHA512(data, signature, keyPair.getPublic());
+        // Verify signature using administrator public key
+        boolean isValid = DigitalSignature.verifySHA512(data, signature, administratorPublicKey);
         
         if (!isValid) {
             throw new SecurityException("Invalid activation response signature");
@@ -95,5 +111,12 @@ public class OfflineActivationService {
     public String loadActivationRequest(String filePath) throws Exception {
         Path path = Paths.get(filePath);
         return Files.readString(path);
+    }
+
+    /**
+     * Gets the administrator public key for external use.
+     */
+    public PublicKey getAdministratorPublicKey() {
+        return administratorPublicKey;
     }
 }

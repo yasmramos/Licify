@@ -10,6 +10,8 @@ import com.licify.hardware.HardwareId;
 import com.licify.io.IOFormat;
 import com.licify.signing.SignatureConfig;
 import com.licify.util.DateTimeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,6 +30,7 @@ import javax.crypto.Cipher;
  */
 public class Licify {
 
+    private static final Logger logger = LoggerFactory.getLogger(Licify.class);
     private static final String RSA_ALGORITHM = "RSA";
     private static final String TRANSFORMATION = "RSA/ECB/PKCS1Padding";
     private static final LicenseRevocationManager revocationManager = LicenseRevocationManager.getInstance();
@@ -511,9 +514,7 @@ public class Licify {
         license.setSignature(Base64.getEncoder().encodeToString(sig));
         license.setSignatureAlgorithm(defaultSignatureConfig.getAlgorithm());
 
-        // No se puede generar fingerprint sin la clave pública
-        System.out.println("Warning: License created without public key fingerprint. "
-                + "Use sign(license, privateKey, publicKey) for full functionality.");
+        logger.warn("License created without public key fingerprint. Use sign(license, privateKey, publicKey) for full functionality.");
 
         return license;
     }
@@ -530,12 +531,12 @@ public class Licify {
      */
     public static boolean verify(License license, PublicKey publicKey, SignatureConfig config) {
         if (license == null || publicKey == null) {
-            System.out.println("ERROR: Licencia o clave pública nula");
+            logger.error("Licencia o clave pública nula");
             return false;
         }
 
         if (license.getSignature() == null || license.getSignature().isEmpty()) {
-            System.out.println("ERROR: La licencia no tiene firma digital");
+            logger.error("La licencia no tiene firma digital");
             return false;
         }
 
@@ -546,20 +547,20 @@ public class Licify {
         String algorithm = license.getSignatureAlgorithm();
         if (algorithm == null || algorithm.isEmpty()) {
             algorithm = config.getAlgorithm();
-            System.out.println("INFO: Usando algoritmo de firma por defecto: " + algorithm);
+            logger.info("Usando algoritmo de firma por defecto: {}", algorithm);
         }
 
         if (!isValidLicense(license)) {
-            System.out.println("Licencia inválida: estructura básica incorrecta");
+            logger.error("Licencia inválida: estructura básica incorrecta");
             return false;
         }
 
         boolean hardwareValid = verifyLicenseForHardware(license);
         if (!hardwareValid) {
-            System.out.println("Verificación de Hardware completa fallida, probando con tolerancia...");
+            logger.warn("Verificación de Hardware completa fallida, probando con tolerancia...");
             boolean hardwareValidTolerance = verifyLicenseForHardwareWithTolerance(license);
             if (!hardwareValidTolerance) {
-                System.err.println("Verificación de Hardware con tolerancia fallida");
+                logger.error("Verificación de Hardware con tolerancia fallida");
                 return false;
             }
         }
@@ -573,7 +574,7 @@ public class Licify {
             byte[] sigBytes = Base64.getDecoder().decode(license.getSignature());
             return signature.verify(sigBytes);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException ex) {
-            System.out.println("Error durante la verificación de la licencia: " + ex.getMessage());
+            logger.error("Error durante la verificación de la licencia: {}", ex.getMessage());
             return false;
         }
     }
@@ -601,7 +602,7 @@ public class Licify {
             }
             return true;
         } catch (Exception e) {
-            System.out.println("Error al validar licencia para hardware: " + e.getMessage());
+            logger.error("Error al validar licencia para hardware: {}", e.getMessage());
             return false;
         }
     }
@@ -613,7 +614,7 @@ public class Licify {
             }
             return true;
         } catch (Exception e) {
-            System.out.println("Error al validar licencia para hardware: " + e.getMessage());
+            logger.error("Error al validar licencia para hardware: {}", e.getMessage());
             return false;
         }
     }
@@ -708,17 +709,16 @@ public class Licify {
         String algorithm = license.getSignatureAlgorithm();
         if (algorithm == null || algorithm.isEmpty()) {
             algorithm = config.getAlgorithm();
-            System.out.println("ADVERTENCIA: Algoritmo de firma era nulo, usando por defecto: " + algorithm);
+            logger.warn("Algoritmo de firma era nulo, usando por defecto: {}", algorithm);
         }
 
         if (license.getSignature() == null || license.getSignature().isEmpty()) {
-            System.out.println("ERROR: La firma de la licencia es nula o vacía");
+            logger.error("La firma de la licencia es nula o vacía");
             return;
         }
 
         String licenseData = serializeLicense(license);
-        System.out.println("Datos serializados para verificación:");
-        System.out.println(licenseData);
+        logger.debug("Datos serializados para verificación: {}", licenseData);
 
         Signature signature = Signature.getInstance(algorithm, config.getProvider());
         signature.initVerify(publicKey);
@@ -726,11 +726,11 @@ public class Licify {
 
         byte[] sigBytes = Base64.getDecoder().decode(license.getSignature());
         boolean isValid = signature.verify(sigBytes);
-        System.out.println("Firma válida: " + isValid);
+        logger.info("Firma válida: {}", isValid);
 
         if (!isValid) {
-            System.out.println("=== DEBUG: Comparando con firma original ===");
-            System.out.println("Firma almacenada: " + license.getSignature());
+            logger.debug("=== DEBUG: Comparando con firma original ===");
+            logger.debug("Firma almacenada: {}", license.getSignature());
         }
     }
 

@@ -1,5 +1,7 @@
 package com.licify.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +15,8 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 public class KeyUtils {
+    
+    private static final Logger logger = LoggerFactory.getLogger(KeyUtils.class);
 
     public static PublicKey loadPublicKeyFromResource(String resourcePath) {
         // Primero intentar cargar desde recursos (classpath)  
@@ -21,7 +25,7 @@ public class KeyUtils {
                 return loadPublicKeyFromStream(is);
             }
         } catch (Exception e) {
-            System.err.println("No se pudo cargar desde recursos: " + e.getMessage());
+            logger.warn("No se pudo cargar desde recursos: {}", e.getMessage());
         }
 
         // Fallback: intentar cargar desde sistema de archivos  
@@ -33,11 +37,11 @@ public class KeyUtils {
                 String pem = readFileToString(filePath);
                 return loadPublicKeyFromPemString(pem);
             } catch (Exception e) {
-                System.err.println("Error cargando desde archivo: " + e.getMessage());
+                logger.warn("Error cargando desde archivo: {}", e.getMessage());
             }
         }
 
-        System.err.println("No se encontró la clave pública en recursos ni en sistema de archivos: " + resourcePath);
+        logger.error("No se encontró la clave pública en recursos ni en sistema de archivos: {}", resourcePath);
         return null;
     }
 
