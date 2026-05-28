@@ -1,6 +1,8 @@
 package com.licify.core;
 
 import java.io.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.net.*;
 import java.nio.file.*;
 import java.security.MessageDigest;
@@ -11,6 +13,8 @@ import java.util.function.Supplier;
  * Supports version comparison, integrity validation, and callback notifications.
  */
 public class AutoUpdateService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AutoUpdateService.class);
     
     private static final String DEFAULT_UPDATE_DIR = "updates";
     private final String currentVersion;
@@ -90,7 +94,7 @@ public class AutoUpdateService {
             try {
                 Files.createDirectories(updateDirectory);
             } catch (IOException e) {
-                System.err.println("Failed to create update directory: " + e.getMessage());
+                logger.error("Failed to create update directory: {}", e.getMessage(), e);
             }
         }
     }
@@ -109,7 +113,7 @@ public class AutoUpdateService {
             
             int responseCode = conn.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                System.err.println("Failed to check updates: HTTP " + responseCode);
+                logger.error("Failed to check updates: HTTP {}", responseCode);
                 return null;
             }
             
@@ -122,7 +126,7 @@ public class AutoUpdateService {
             
             return null;
         } catch (IOException e) {
-            System.err.println("Error checking for updates: " + e.getMessage());
+            logger.error("Error checking for updates: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -208,7 +212,7 @@ public class AutoUpdateService {
             String actualChecksum = bytesToHex(hash);
             return actualChecksum.equalsIgnoreCase(expectedChecksum);
         } catch (IOException e) {
-            System.err.println("Failed to verify checksum: " + e.getMessage());
+            logger.error("Failed to verify checksum: {}", e.getMessage(), e);
             return false;
         }
     }
@@ -222,14 +226,14 @@ public class AutoUpdateService {
     public boolean installUpdate(Path updateFile, Supplier<Boolean> installer) {
         try {
             if (!Files.exists(updateFile)) {
-                System.err.println("Update file not found: " + updateFile);
+                logger.error("Update file not found: {}", updateFile);
                 return false;
             }
             
             return installer.get();
             
         } catch (Exception e) {
-            System.err.println("Installation failed: " + e.getMessage());
+            logger.error("Installation failed: {}", e.getMessage(), e);
             return false;
         }
     }
@@ -303,7 +307,7 @@ public class AutoUpdateService {
             return new UpdateInfo(version, downloadUrl, checksum, fileSize, 
                                  releaseNotes, critical);
         } catch (Exception e) {
-            System.err.println("Failed to parse update info: " + e.getMessage());
+            logger.error("Failed to parse update info: {}", e.getMessage(), e);
             return null;
         }
     }
