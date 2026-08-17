@@ -181,7 +181,7 @@ public class FloatingLicenseManager {
      */
     public ActivationResult activateSession(String licenseId, String clientId, 
                                            String clientHost, int maxUsers) {
-        lock.readLock().lock();
+        lock.writeLock().lock();
         try {
             // Count active sessions for this license
             long currentUsers = activeSessions.values().stream()
@@ -204,7 +204,7 @@ public class FloatingLicenseManager {
             return new ActivationResult(true, sessionId, "Session activated successfully",
                                        (int)currentUsers + 1, maxUsers);
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
     
