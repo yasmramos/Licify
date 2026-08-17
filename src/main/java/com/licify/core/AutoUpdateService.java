@@ -1,5 +1,7 @@
 package com.licify.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,7 @@ public class AutoUpdateService {
     private final String currentVersion;
     private final String updateServerUrl;
     private final Path updateDirectory;
-    private final MessageDigest digest;
+    private final ObjectMapper objectMapper;
     
     /**
      * Update information returned by the server.
@@ -82,12 +84,7 @@ public class AutoUpdateService {
         this.updateServerUrl = updateServerUrl.endsWith("/") ? 
             updateServerUrl.substring(0, updateServerUrl.length() - 1) : updateServerUrl;
         this.updateDirectory = updateDirectory;
-        
-        try {
-            this.digest = MessageDigest.getInstance("SHA-256");
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize SHA-256 digest", e);
-        }
+        this.objectMapper = new ObjectMapper();
         
         // Ensure update directory exists
         if (!Files.exists(updateDirectory)) {
@@ -208,13 +205,30 @@ public class AutoUpdateService {
     public boolean verifyChecksum(Path file, String expectedChecksum) {
         try {
             byte[] fileBytes = Files.readAllBytes(file);
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(fileBytes);
-            String actualChecksum = bytesToHex(hash);
-            return actualChecksum.equalsIgnoreCase(expectedChecksum);
-        } catch (IOException e) {
+            byte[] expectedBytes = hexStringToByteArray(expectedChecksum);
+            // Use constant-time comparison to prevent timing attacks
+            return MessageDigest.isEqual(hash, expectedBytes);
+        } catch (Exception e) {
             logger.error("Failed to verify checksum: {}", e.getMessage(), e);
             return false;
         }
+    }
+    
+    /**
+     * Converts a hex string to byte array.
+     * @param hex Hex string
+     * @return Byte array
+     */
+    private byte[] hexStringToByteArray(String hex) {
+        int len = hex.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+                    + Character.digit(hex.charAt(i+1), 16));
+        }
+        return data;
     }
     
     /**
@@ -286,23 +300,14 @@ public class AutoUpdateService {
      */
     private UpdateInfo parseUpdateInfo(String json) {
         try {
-            // Simple JSON parsing (in production, use Jackson or Gson)
-            String version = extractJsonValue(json, "version");
-            String downloadUrl = extractJsonValue(json, "downloadUrl");
-            String checksum = extractJsonValue(json, "checksum");
-            String releaseNotes = extractJsonValue(json, "releaseNotes");
-            boolean critical = json.contains("\"critical\":true");
+            JsonNode rootNode = objectMapper.readTree(json);
             
-            long fileSize = 0;
-            int fileSizeStart = json.indexOf("\"fileSize\":");
-            if (fileSizeStart != -1) {
-                int valueStart = fileSizeStart + 11;
-                int valueEnd = json.indexOf(",", valueStart);
-                if (valueEnd == -1) valueEnd = json.indexOf("}", valueStart);
-                if (valueEnd != -1) {
-                    fileSize = Long.parseLong(json.substring(valueStart, valueEnd).trim());
-                }
-            }
+            String version = rootNode.has("version") ? rootNode.get("version").asText() : "";
+            String downloadUrl = rootNode.has("downloadUrl") ? rootNode.get("downloadUrl").asText() : "";
+            String checksum = rootNode.has("checksum") ? rootNode.get("checksum").asText() : "";
+            String releaseNotes = rootNode.has("releaseNotes") ? rootNode.get("releaseNotes").asText() : "";
+            boolean critical = rootNode.has("critical") && rootNode.get("critical").asBoolean();
+            long fileSize = rootNode.has("fileSize") ? rootNode.get("fileSize").asLong() : 0;
             
             return new UpdateInfo(version, downloadUrl, checksum, fileSize, 
                                  releaseNotes, critical);
@@ -313,11 +318,13 @@ public class AutoUpdateService {
     }
     
     /**
-     * Extracts a string value from JSON.
+     * Extracts a string value from JSON (deprecated - use Jackson instead).
      * @param json JSON string
      * @param key Key to extract
      * @return Value string
+     * @deprecated Use Jackson ObjectMapper for JSON parsing
      */
+    @Deprecated
     private String extractJsonValue(String json, String key) {
         String searchKey = "\"" + key + "\":";
         int keyIndex = json.indexOf(searchKey);

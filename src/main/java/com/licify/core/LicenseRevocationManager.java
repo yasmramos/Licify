@@ -186,12 +186,10 @@ public class LicenseRevocationManager {
                         .filter(line -> !line.isEmpty())
                         .collect(Collectors.toSet()));
 
-                System.err.println(String.format(
-                        "Loaded {0} revoked licenses from file",
-                        revokedLicenses.size()));
+                logger.info("Loaded {} revoked licenses from file", revokedLicenses.size());
             }
         } catch (IOException e) {
-            System.err.println(String.format(ERROR_LOADING_REVOCATIONS, e));
+            logger.error(ERROR_LOADING_REVOCATIONS, e);
         } finally {
             lock.writeLock().unlock();
         }

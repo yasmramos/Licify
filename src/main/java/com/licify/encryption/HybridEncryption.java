@@ -62,11 +62,18 @@ public class HybridEncryption {
     }
 
     public static byte[] decryptWithAes(byte[] encryptedData, SecretKey aesKey, EncryptionConfig config) throws Exception {
-        // Separar IV y datos cifrados
+        // Validate encrypted data length before accessing
+        if (encryptedData == null || encryptedData.length < config.getGcmIvLength()) {
+            throw new IllegalArgumentException(
+                "Encrypted data is too short. Expected at least " + config.getGcmIvLength() + 
+                " bytes for IV, but got " + (encryptedData == null ? 0 : encryptedData.length));
+        }
+        
+        // Separate IV and encrypted data
         byte[] iv = Arrays.copyOfRange(encryptedData, 0, config.getGcmIvLength());
         byte[] actualEncryptedData = Arrays.copyOfRange(encryptedData, config.getGcmIvLength(), encryptedData.length);
 
-        // Configurar cipher GCM
+        // Configure GCM cipher
         Cipher cipher = Cipher.getInstance(config.getAesTransformation());
         GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(config.getGcmTagLength(), iv);
         cipher.init(Cipher.DECRYPT_MODE, aesKey, gcmParameterSpec);
