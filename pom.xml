@@ -4,7 +4,7 @@
     
     <groupId>com.licify</groupId>
     <artifactId>licify</artifactId>
-    <version>2.0.0</version>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
     
     <name>Licify</name>
@@ -169,7 +169,14 @@
                         <include>**/*Test.java</include>
                         <include>**/*Tests.java</include>
                     </includes>
-                    <argLine>@{argLine} -Xmx1024m</argLine>
+                    <!--
+                        Jackson (automatic module, loaded from the classpath) needs deep
+                        reflection access to com.licify.core DTOs such as
+                        FloatingLicenseManager.SessionInfo when tests run on the module path.
+                        Without these flags, deserialization fails with
+                        InaccessibleObjectException and persisted sessions are silently dropped.
+                    -->
+                    <argLine>@{argLine} -Xmx1024m --add-opens com.licify/com.licify.core=com.fasterxml.jackson.databind --add-opens com.licify/com.licify.core=ALL-UNNAMED</argLine>
                     <systemPropertyVariables>
                         <java.awt.headless>true</java.awt.headless>
                     </systemPropertyVariables>
@@ -246,6 +253,13 @@
                             <Implementation-Vendor>Licify</Implementation-Vendor>
                             <Implementation-Title>${project.name}</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
+                            <!--
+                                Explicit JPMS module name. Keeps the modular descriptor
+                                visible to tooling (jdeps, site/javadoc aggregation) even
+                                when a jar is rebuilt without module-info.class, and
+                                guarantees a stable module identity for consumers.
+                            -->
+                            <Automatic-Module-Name>com.licify</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -291,7 +305,16 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
+            <!-- Maven Site Plugin: pinned to a modern version compatible with
+                 Doxia 1.12+ (the default inherited version 3.3 fails with
+                 ClassNotFoundException: DocumentContent when aggregating reports) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.12.1</version>
+            </plugin>
+
             <!-- Checkstyle Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

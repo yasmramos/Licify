@@ -18,32 +18,37 @@ public class LicenseSerializer {
      * @return a string containing all license metadata in key=value format, with each field
      *         separated by a newline character. Returns an empty string if license is null.
      *
-     * @apiNote The serialized format includes:
-     * - Basic license information (version, licensee details, dates)
-     * - Product information (ID, version, license key)
-     * - Usage constraints (trial status, max users, features)
-     * - License type and custom data
-     * - Security information (signature, algorithm, public key fingerprint)
-     * - Hardware binding information
+     * <p>The serialized format includes:</p>
+     * <ul>
+     *   <li>Basic license information (version, licensee details, dates)</li>
+     *   <li>Product information (ID, version, license key)</li>
+     *   <li>Usage constraints (trial status, max users, features)</li>
+     *   <li>License type and custom data</li>
+     *   <li>Security information (signature, algorithm, public key fingerprint)</li>
+     *   <li>Hardware binding information</li>
+     * </ul>
      *
-     * @example
-     * version=1.0
-     * licenseeName=John Doe
-     * licenseeEmail=john@example.com
-     * issueDate=2023-01-01
-     * expirationDate=2024-01-01
-     * productId=PROD-001
-     * productVersion=2.1.0
-     * licenseKey=ABC123-XYZ789
-     * isTrial=false
-     * maxUsers=5
-     * features=FEAT1,FEAT2,FEAT3
-     * licenseType=COMMERCIAL
-     * customData=additional_info
-     * signatureAlgorithm=RSA
-     * signature=base64_signature_data
-     * publicKeyFingerprint=sha256:abc123...
-     * hardwareId=system_fingerprint
+     * <pre>{@code
+     * String text = LicenseSerializer.serializeLicenseWithMetadata(license);
+     * // Example output:
+     * // version=1.0
+     * // licenseeName=John Doe
+     * // licenseeEmail=john@example.com
+     * // issueDate=2023-01-01T00:00
+     * // expirationDate=2024-01-01T00:00
+     * // productId=PROD-001
+     * // productVersion=2.1.0
+     * // licenseKey=ABC123-XYZ789
+     * // isTrial=false
+     * // maxUsers=5
+     * // features=FEAT1,FEAT2,FEAT3
+     * // licenseType=COMMERCIAL
+     * // customData=additional_info
+     * // signatureAlgorithm=RSA
+     * // signature=base64_signature_data
+     * // publicKeyFingerprint=sha256:abc123...
+     * // hardwareId=system_fingerprint
+     * }</pre>
      */
     public static String serializeLicenseWithMetadata(License license) {
         // Handle null license to prevent NullPointerException

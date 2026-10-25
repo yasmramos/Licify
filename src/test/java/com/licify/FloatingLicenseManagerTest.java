@@ -166,19 +166,21 @@ public class FloatingLicenseManagerTest {
     @Test
     @DisplayName("Should persist and load sessions")
     public void testSessionPersistence() throws Exception {
-        String sessionId1 = manager.activateSession("LICENSE-001", "client-1", "192.168.1.100", 5).getSessionId();
-        String sessionId2 = manager.activateSession("LICENSE-002", "client-2", "192.168.1.101", 3).getSessionId();
-        
-        // Stop the first manager's scheduler and clear sessions from memory
+        manager.activateSession("LICENSE-001", "client-1", "192.168.1.100", 5);
+        manager.activateSession("LICENSE-002", "client-2", "192.168.1.101", 3);
+
+        // Simulate a process restart: the new instance must restore sessions
+        // from the file written by the previous one (the constructor calls
+        // loadSessions(), which uses Jackson for deserialization).
         manager.stopCleanupScheduler();
-        manager.clearAllSessions();
-        
-        // Reload from file
-        manager.loadSessions();
-        
-        assertEquals(2, manager.getAllActiveSessions().size());
-        assertEquals(1, manager.getActiveSessionCount("LICENSE-001"));
-        assertEquals(1, manager.getActiveSessionCount("LICENSE-002"));
+        FloatingLicenseManager reloaded = new FloatingLicenseManager(testSessionsFile);
+        try {
+            assertEquals(2, reloaded.getAllActiveSessions().size());
+            assertEquals(1, reloaded.getActiveSessionCount("LICENSE-001"));
+            assertEquals(1, reloaded.getActiveSessionCount("LICENSE-002"));
+        } finally {
+            reloaded.stopCleanupScheduler();
+        }
     }
     
     @Test
