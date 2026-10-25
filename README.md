@@ -1,7 +1,8 @@
-# Licify - Java License Management Library 2.0
+# Licify - Java License Management Library
 
 [![Java CI with Maven](https://github.com/yasmramos/Licify/actions/workflows/maven.yml/badge.svg)](https://github.com/yasmramos/Licify/actions/workflows/maven.yml)
-[![Maven Central](https://img.shields.io/badge/Maven%20Central-2.0.0-blue.svg)](https://central.sonatype.com/artifact/com.licify/licify)
+[![Version](https://img.shields.io/badge/version-0.1.0-orange.svg)](https://github.com/yasmramos/Licify/releases)
+[![Maven Central](https://img.shields.io/badge/Maven%20Central-0.1.0-blue.svg)](https://central.sonatype.com/artifact/com.licify/licify)
 [![Java Version](https://img.shields.io/badge/Java-17%2B-green.svg)](https://adoptium.net/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -9,13 +10,13 @@
 
 **Licify** is a robust and modern Java library for software license management, providing advanced features including hybrid encryption (AES+RSA), digital signatures, hardware validation, and multiple serialization formats.
 
-### ✨ What's New in Version 2.0
+### ✨ Version 0.1.0 (Initial Development Release)
 
-- ✅ **Java 17+:** Updated to the latest language features
+- ⚠️ **Pre-release:** This library is not yet in production; versioning follows Semantic Versioning starting from `0.1.0`
+- ✅ **Java 17+:** Built on the latest language features
 - ✅ **Complete CI/CD:** GitHub Actions with multi-version builds (Java 17 and 21)
-- ✅ **Automatic Publishing:** Configured for Maven Central
 - ✅ **Enhanced Documentation:** Complete Javadocs and detailed examples
-- ✅ **New Features:** Floating licenses, automatic update system
+- ✅ **Features:** Floating licenses, automatic update system
 - ✅ **Code Quality:** Checkstyle, JaCoCo coverage >40%
 
 ## 🚀 Key Features
@@ -64,14 +65,14 @@
 <dependency>
     <groupId>com.licify</groupId>
     <artifactId>licify</artifactId>
-    <version>2.0.0</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'com.licify:licify:2.0.0'
+implementation 'com.licify:licify:0.1.0'
 ```
 
 ### Prerequisites
