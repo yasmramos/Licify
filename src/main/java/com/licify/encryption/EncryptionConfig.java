@@ -69,6 +69,24 @@ public class EncryptionConfig {
         this.gcmIvLength = gcmIvLength;
     }
 
+    /**
+     * Creates a defensive copy of this configuration so shared defaults cannot be
+     * mutated through external references.
+     *
+     * @return a new EncryptionConfig with the same values as this one
+     */
+    public EncryptionConfig copy() {
+        EncryptionConfig copy = new EncryptionConfig();
+        copy.rsaAlgorithm = this.rsaAlgorithm;
+        copy.rsaTransformation = this.rsaTransformation;
+        copy.aesAlgorithm = this.aesAlgorithm;
+        copy.aesTransformation = this.aesTransformation;
+        copy.aesKeySize = this.aesKeySize;
+        copy.gcmTagLength = this.gcmTagLength;
+        copy.gcmIvLength = this.gcmIvLength;
+        return copy;
+    }
+
     public static class Builder {
 
         private final EncryptionConfig config = new EncryptionConfig();
