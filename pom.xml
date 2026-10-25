@@ -305,7 +305,16 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
+            <!-- Maven Site Plugin: pinned to a modern version compatible with
+                 Doxia 1.12+ (the default inherited version 3.3 fails with
+                 ClassNotFoundException: DocumentContent when aggregating reports) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.12.1</version>
+            </plugin>
+
             <!-- Checkstyle Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
