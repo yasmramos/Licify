@@ -1,5 +1,6 @@
 ```
-# Compiled and build artifacts
+# Java/Maven build artifacts
+target/
 *.class
 *.o
 *.obj
@@ -11,17 +12,19 @@ target/
 .gradle/
 lib/
 
-# Logs and temp files
-*.log
-*.tmp
-*.swp
+# Generated files
+*.jks
+*.keystore
 
-# Environment
+# Logs
+*.log
+
+# Environment specific
 .env
 .env.local
 *.env.*
 
-# Editors
+# IDE files
 .vscode/
 .idea/
 

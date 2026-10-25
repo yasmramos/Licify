@@ -28,7 +28,7 @@ class OfflineActivationServiceTest {
     Path tempDir;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         service = new OfflineActivationService();
     }
 
