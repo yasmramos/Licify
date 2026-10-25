@@ -1,6 +1,7 @@
 package com.licify.core;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -91,6 +92,12 @@ public class FloatingLicenseManager {
         public LocalDateTime getLastHeartbeat() { return lastHeartbeat; }
         public int getMaxUsers() { return maxUsers; }
         
+        /**
+         * Derived value, not part of the persisted JSON representation. Without
+         * {@code @JsonIgnore}, Jackson includes it on serialization and
+         * deserialization then fails on the unknown property.
+         */
+        @JsonIgnore
         public long getIdleTimeMinutes() {
             return java.time.Duration.between(lastHeartbeat, LocalDateTime.now()).toMinutes();
         }
