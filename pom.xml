@@ -253,6 +253,13 @@
                             <Implementation-Vendor>Licify</Implementation-Vendor>
                             <Implementation-Title>${project.name}</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
+                            <!--
+                                Explicit JPMS module name. Keeps the modular descriptor
+                                visible to tooling (jdeps, site/javadoc aggregation) even
+                                when a jar is rebuilt without module-info.class, and
+                                guarantees a stable module identity for consumers.
+                            -->
+                            <Automatic-Module-Name>com.licify</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

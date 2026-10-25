@@ -23,9 +23,10 @@ public class ShortLicenseKey {
      * 
      * @throws RuntimeException if SHA-256 algorithm is not available (falls back to random generation)
      * 
-     * @example
-     * generateShortKey("user123:productA:2023") 
-     * // Returns: "DCWI3U-6RDTB8-EBMPTJ-TVURQ7"
+     * <pre>{@code
+     * String key = ShortLicenseKey.generateShortKey("user123:productA:2023");
+     * // Returns a deterministic key such as "DCWI3U-6RDTB8-EBMPTJ-TVURQ7"
+     * }</pre>
      */
     public static String generateShortKey(String seed) {
         try {
@@ -123,8 +124,10 @@ public class ShortLicenseKey {
      * @return true if the provided key matches the key generated from the secret-value combination,
      *         false if the key is invalid, null, or doesn't match
      * 
-     * @example
-     * verifyShortKey("DCWI3U-6RDTB8-EBMPTJ-TVURQ7", "SECRET123", "user@email.com")
+     * <pre>{@code
+     * boolean ok = ShortLicenseKey.verifyShortKey(
+     *         "DCWI3U-6RDTB8-EBMPTJ-TVURQ7", "SECRET123", "user@email.com");
+     * }</pre>
      */
     public static boolean verifyShortKey(String shortKey, String secretKey, String value) {
         if (!isValidShortKey(shortKey)) {
@@ -145,9 +148,10 @@ public class ShortLicenseKey {
      * @return true if the key matches the format XXXX-XXXX-XXXX-XXXX where X is alphanumeric,
      *         false if the key is null, empty, or has invalid format
      * 
-     * @example
-     * isValidShortKey("DCWI3U-6RDTB8-EBMPTJ-TVURQ7") // Returns: true
-     * isValidShortKey("INVALID-KEY-FORMAT")          // Returns: false
+     * <pre>{@code
+     * ShortLicenseKey.isValidShortKey("DCWI3U-6RDTB8-EBMPTJ-TVURQ7"); // true
+     * ShortLicenseKey.isValidShortKey("INVALID-KEY-FORMAT");          // false
+     * }</pre>
      */
     public static boolean isValidShortKey(String shortKey) {
         if (shortKey == null || shortKey.isEmpty()) {

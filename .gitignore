@@ -1,21 +1,17 @@
-# Java/Maven build artifacts
+# Maven build artifacts
 target/
-*.class
-*.o
-*.obj
-*.out
 build/
-target/
+*.class
 
-# Dependencies
-.gradle/
-lib/
-
-# Generated files
-*.jks
-*.keystore
+# Release plugin backups
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
 
 # Logs
+logs/
 *.log
 
 # Environment specific
@@ -26,15 +22,8 @@ lib/
 # IDE files
 .vscode/
 .idea/
+*.iml
 
-# Coverage reports
-coverage/
-htmlcov/
-*.coverage
-
-# Package manager caches
-node_modules/
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-
+# OS files
+.DS_Store
+Thumbs.db

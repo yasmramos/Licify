@@ -264,7 +264,8 @@ public class AutoUpdateService {
      * Compares two version strings.
      * @param v1 First version
      * @param v2 Second version
-     * @return negative if v1 < v2, 0 if equal, positive if v1 > v2
+     * @return a negative value if v1 is older than v2, 0 if both are equal,
+     *         and a positive value if v1 is newer than v2
      */
     public static int compareVersions(String v1, String v2) {
         String[] parts1 = v1.replaceAll("[^0-9.]", "").split("\\.");
