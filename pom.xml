@@ -46,6 +46,9 @@
         <mockito.version>5.17.0</mockito.version>
         <oshi.version>6.8.2</oshi.version>
         <jacoco.version>0.8.13</jacoco.version>
+        <slf4j.version>2.0.16</slf4j.version>
+        <logback.version>1.5.18</logback.version>
+        <jackson.version>2.18.3</jackson.version>
         <exec.mainClass>com.licify.Main</exec.mainClass>
     </properties>
     
@@ -62,6 +65,34 @@
     </dependencyManagement>
     
     <dependencies>
+        <!-- SLF4J API -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        
+        <!-- Logback Classic (SLF4J implementation) -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        
+        <!-- Jackson for JSON processing -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        
+        <!-- Jackson JavaTime module for LocalDateTime support -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        
         <!-- Hardware Information -->
         <dependency>
             <groupId>com.github.oshi</groupId>

@@ -18,24 +18,21 @@ import java.util.Base64;
  */
 public class OfflineActivationService {
 
-    private final LicenseKeyPair keyPair;
-    private final PublicKey adminPublicKey;
+    private KeyPair adminKeyPair;
+    private PublicKey administratorPublicKey;
 
-    /**
-     * Constructor por defecto que genera un nuevo par de claves.
-     * Nota: En producción, las claves deberían ser persistentes y compartidas entre cliente/servidor.
-     */
-    public OfflineActivationService() throws Exception {
-        this.keyPair = LicenseKeyPair.generate();
-        this.adminPublicKey = null;
+    public OfflineActivationService() {
+        try {
+            this.adminKeyPair = LicenseKeyPair.generateRSAKeys(2048);
+            this.administratorPublicKey = this.adminKeyPair.getPublic();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize admin key pair", e);
+        }
     }
 
-    /**
-     * Constructor con par de claves específico para testing.
-     */
-    public OfflineActivationService(LicenseKeyPair keyPair) {
-        this.keyPair = keyPair;
-        this.adminPublicKey = keyPair.getPublicKey();
+    public OfflineActivationService(KeyPair adminKeyPair) {
+        this.adminKeyPair = adminKeyPair;
+        this.administratorPublicKey = adminKeyPair.getPublic();
     }
 
     /**
@@ -52,8 +49,11 @@ public class OfflineActivationService {
             throw new IllegalArgumentException("License and fingerprint cannot be null");
         }
 
+        // Use admin key pair to sign the request
+        PrivateKey privateKey = adminKeyPair.getPrivate();
+        
         String rawData = license.getLicenseKey() + "|" + fingerprint + "|" + System.currentTimeMillis();
-        String signature = DigitalSignature.signSHA512(rawData, keyPair.getPrivateKey());
+        String signature = DigitalSignature.signSHA512(rawData, privateKey);
         
         return Base64.getEncoder().encodeToString((rawData + "::" + signature).getBytes());
     }
@@ -90,8 +90,8 @@ public class OfflineActivationService {
         String data = parts[0];
         String signature = parts[1];
 
-        // Verify signature using the stored public key
-        boolean isValid = DigitalSignature.verifySHA512(data, signature, keyPair.getPublicKey());
+        // Verify signature using administrator public key
+        boolean isValid = DigitalSignature.verifySHA512(data, signature, administratorPublicKey);
         
         if (!isValid) {
             throw new SecurityException("Invalid activation response signature");
@@ -112,11 +112,11 @@ public class OfflineActivationService {
         Path path = Paths.get(filePath);
         return Files.readString(path);
     }
-    
+
     /**
-     * Obtiene el par de claves para uso en tests.
+     * Gets the administrator public key for external use.
      */
-    public LicenseKeyPair getKeyPair() {
-        return keyPair;
+    public PublicKey getAdministratorPublicKey() {
+        return administratorPublicKey;
     }
 }

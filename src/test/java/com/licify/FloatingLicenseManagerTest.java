@@ -1,14 +1,13 @@
-package com.licify;
+package com.licify.core;
 
-import com.licify.core.FloatingLicenseManager;
-import com.licify.core.FloatingLicenseManager.ActivationResult;
-import com.licify.core.FloatingLicenseManager.SessionInfo;
 import org.junit.jupiter.api.*;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.licify.core.FloatingLicenseManager.ActivationResult;
+import static com.licify.core.FloatingLicenseManager.SessionInfo;
 
 /**
  * Unit tests for FloatingLicenseManager.
@@ -166,23 +165,27 @@ public class FloatingLicenseManagerTest {
     
     @Test
     @DisplayName("Should persist and load sessions")
-    public void testSessionPersistence() {
-        manager.activateSession("LICENSE-001", "client-1", "192.168.1.100", 5);
-        manager.activateSession("LICENSE-002", "client-2", "192.168.1.101", 3);
+    public void testSessionPersistence() throws Exception {
+        String sessionId1 = manager.activateSession("LICENSE-001", "client-1", "192.168.1.100", 5).getSessionId();
+        String sessionId2 = manager.activateSession("LICENSE-002", "client-2", "192.168.1.101", 3).getSessionId();
         
-        // Create new manager with same file
-        FloatingLicenseManager manager2 = new FloatingLicenseManager(testSessionsFile);
+        // Stop the first manager's scheduler and clear sessions from memory
+        manager.stopCleanupScheduler();
+        manager.clearAllSessions();
         
-        assertEquals(2, manager2.getAllActiveSessions().size());
-        assertEquals(1, manager2.getActiveSessionCount("LICENSE-001"));
-        assertEquals(1, manager2.getActiveSessionCount("LICENSE-002"));
+        // Reload from file
+        manager.loadSessions();
+        
+        assertEquals(2, manager.getAllActiveSessions().size());
+        assertEquals(1, manager.getActiveSessionCount("LICENSE-001"));
+        assertEquals(1, manager.getActiveSessionCount("LICENSE-002"));
     }
     
     @Test
     @DisplayName("Should handle multiple licenses independently")
     public void testMultipleLicenses() {
-        ActivationResult r1 = manager.activateSession("LICENSE-A", "client-1", "192.168.1.100", 2);
-        ActivationResult r2 = manager.activateSession("LICENSE-B", "client-2", "192.168.1.101", 2);
+        FloatingLicenseManager.ActivationResult r1 = manager.activateSession("LICENSE-A", "client-1", "192.168.1.100", 2);
+        FloatingLicenseManager.ActivationResult r2 = manager.activateSession("LICENSE-B", "client-2", "192.168.1.101", 2);
         
         assertTrue(r1.isSuccess());
         assertTrue(r2.isSuccess());

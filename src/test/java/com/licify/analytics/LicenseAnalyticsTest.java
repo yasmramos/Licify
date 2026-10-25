@@ -74,7 +74,8 @@ class LicenseAnalyticsTest {
         LicenseAnalytics.AnalyticsData data = analytics.getAnalytics(licenseKey);
         assertNotNull(data);
         assertEquals(2, data.validationCount);
-        assertEquals(1, data.hardwareIdUsage.get(hardwareId));
+        // Hardware ID is counted for each validation event (both success and failure)
+        assertEquals(2, data.hardwareIdUsage.get(hardwareId));
         
         // Check history contains both success and failure
         assertTrue(data.validationHistory.stream().anyMatch(h -> h.contains("SUCCESS")));

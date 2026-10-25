@@ -10,6 +10,8 @@ import com.licify.hardware.HardwareId;
 import com.licify.io.IOFormat;
 import com.licify.signing.SignatureConfig;
 import com.licify.util.DateTimeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,8 +30,9 @@ import javax.crypto.Cipher;
  */
 public class Licify {
 
+    private static final Logger logger = LoggerFactory.getLogger(Licify.class);
     private static final String RSA_ALGORITHM = "RSA";
-    private static final String TRANSFORMATION = "RSA/ECB/PKCS1Padding";
+    private static final String TRANSFORMATION = "RSA/ECB/OAEPWithSHA-256AndMGF1Padding";
     private static final LicenseRevocationManager revocationManager = LicenseRevocationManager.getInstance();
     private static SignatureConfig defaultSignatureConfig = new SignatureConfig();
     private static EncryptionConfig defaultEncryptionConfig = new EncryptionConfig();
@@ -41,8 +44,96 @@ public class Licify {
         return license;
     }
 
+    /**
+     * Creates a License object from a serialized text format.
+     * Parses key=value pairs separated by newlines as produced by 
+     * LicenseSerializer.serializeLicenseWithMetadata.
+     * @param licenseText The serialized license text
+     * @return License object with all fields populated
+     */
     public static License createLicenseFromText(String licenseText) {
-        return null;
+        if (licenseText == null || licenseText.trim().isEmpty()) {
+            return null;
+        }
+        
+        License license = new License();
+        String[] lines = licenseText.split("\\r?\\n");
+        
+        for (String line : lines) {
+            line = line.trim();
+            if (line.isEmpty() || !line.contains("=")) {
+                continue;
+            }
+            
+            int eqIndex = line.indexOf('=');
+            String key = line.substring(0, eqIndex).trim();
+            String value = line.substring(eqIndex + 1).trim();
+            
+            switch (key) {
+                case "version":
+                    license.setVersion(value);
+                    break;
+                case "licenseeName":
+                    license.setLicenseeName(value.isEmpty() ? null : value);
+                    break;
+                case "licenseeEmail":
+                    license.setLicenseeEmail(value.isEmpty() ? null : value);
+                    break;
+                case "issueDate":
+                    if (!value.isEmpty()) {
+                        license.setIssueDate(LocalDateTime.parse(value));
+                    }
+                    break;
+                case "expirationDate":
+                    if (!value.isEmpty()) {
+                        license.setExpirationDate(LocalDateTime.parse(value));
+                    }
+                    break;
+                case "productId":
+                    license.setProductId(value.isEmpty() ? null : value);
+                    break;
+                case "productVersion":
+                    license.setProductVersion(value.isEmpty() ? null : value);
+                    break;
+                case "licenseKey":
+                    license.setLicenseKey(value.isEmpty() ? null : value);
+                    break;
+                case "isTrial":
+                    license.setTrial(Boolean.parseBoolean(value));
+                    break;
+                case "maxUsers":
+                    if (!value.isEmpty()) {
+                        license.setMaxUsers(Integer.parseInt(value));
+                    }
+                    break;
+                case "features":
+                    license.setFeaturesFromString(value.isEmpty() ? null : value);
+                    break;
+                case "licenseType":
+                    license.setLicenseType(value.isEmpty() ? null : value);
+                    break;
+                case "customData":
+                    license.setCustomData(value.isEmpty() ? null : value);
+                    break;
+                case "signatureAlgorithm":
+                    license.setSignatureAlgorithm(value.isEmpty() ? null : value);
+                    break;
+                case "signature":
+                    license.setSignature(value.isEmpty() ? null : value);
+                    break;
+                case "publicKeyFingerprint":
+                    license.setPublicKeyFingerprint(value.isEmpty() ? null : value);
+                    break;
+                case "hardwareId":
+                    license.setHardwareId(value.isEmpty() ? null : value);
+                    break;
+                default:
+                    // Ignore unknown keys for forward compatibility
+                    break;
+            }
+        }
+        
+        return license;
     }
 
     /**
@@ -547,9 +638,7 @@ public class Licify {
         license.setSignature(Base64.getEncoder().encodeToString(sig));
         license.setSignatureAlgorithm(defaultSignatureConfig.getAlgorithm());
 
-        // No se puede generar fingerprint sin la clave pública
-        System.out.println("Warning: License created without public key fingerprint. "
-                + "Use sign(license, privateKey, publicKey) for full functionality.");
+        logger.warn("License created without public key fingerprint. Use sign(license, privateKey, publicKey) for full functionality.");
 
         return license;
     }
@@ -566,12 +655,12 @@ public class Licify {
      */
     public static boolean verify(License license, PublicKey publicKey, SignatureConfig config) {
         if (license == null || publicKey == null) {
-            System.out.println("ERROR: Licencia o clave pública nula");
+            logger.error("Licencia o clave pública nula");
             return false;
         }
 
         if (license.getSignature() == null || license.getSignature().isEmpty()) {
-            System.out.println("ERROR: La licencia no tiene firma digital");
+            logger.error("La licencia no tiene firma digital");
             return false;
         }
 
@@ -582,20 +671,20 @@ public class Licify {
         String algorithm = license.getSignatureAlgorithm();
         if (algorithm == null || algorithm.isEmpty()) {
             algorithm = config.getAlgorithm();
-            System.out.println("INFO: Usando algoritmo de firma por defecto: " + algorithm);
+            logger.info("Usando algoritmo de firma por defecto: {}", algorithm);
         }
 
         if (!isValidLicense(license)) {
-            System.out.println("Licencia inválida: estructura básica incorrecta");
+            logger.error("Licencia inválida: estructura básica incorrecta");
             return false;
         }
 
         boolean hardwareValid = verifyLicenseForHardware(license);
         if (!hardwareValid) {
-            System.out.println("Verificación de Hardware completa fallida, probando con tolerancia...");
+            logger.warn("Verificación de Hardware completa fallida, probando con tolerancia...");
             boolean hardwareValidTolerance = verifyLicenseForHardwareWithTolerance(license);
             if (!hardwareValidTolerance) {
-                System.err.println("Verificación de Hardware con tolerancia fallida");
+                logger.error("Verificación de Hardware con tolerancia fallida");
                 return false;
             }
         }
@@ -609,7 +698,7 @@ public class Licify {
             byte[] sigBytes = Base64.getDecoder().decode(license.getSignature());
             return signature.verify(sigBytes);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException ex) {
-            System.out.println("Error durante la verificación de la licencia: " + ex.getMessage());
+            logger.error("Error durante la verificación de la licencia: {}", ex.getMessage());
             return false;
         }
     }
@@ -637,7 +726,7 @@ public class Licify {
             }
             return true;
         } catch (Exception e) {
-            System.out.println("Error al validar licencia para hardware: " + e.getMessage());
+            logger.error("Error al validar licencia para hardware: {}", e.getMessage());
             return false;
         }
     }
@@ -649,7 +738,7 @@ public class Licify {
             }
             return true;
         } catch (Exception e) {
-            System.out.println("Error al validar licencia para hardware: " + e.getMessage());
+            logger.error("Error al validar licencia para hardware: {}", e.getMessage());
             return false;
         }
     }
@@ -744,17 +833,16 @@ public class Licify {
         String algorithm = license.getSignatureAlgorithm();
         if (algorithm == null || algorithm.isEmpty()) {
             algorithm = config.getAlgorithm();
-            System.out.println("ADVERTENCIA: Algoritmo de firma era nulo, usando por defecto: " + algorithm);
+            logger.warn("Algoritmo de firma era nulo, usando por defecto: {}", algorithm);
         }
 
         if (license.getSignature() == null || license.getSignature().isEmpty()) {
-            System.out.println("ERROR: La firma de la licencia es nula o vacía");
+            logger.error("La firma de la licencia es nula o vacía");
             return;
         }
 
         String licenseData = serializeLicense(license);
-        System.out.println("Datos serializados para verificación:");
-        System.out.println(licenseData);
+        logger.debug("Datos serializados para verificación: {}", licenseData);
 
         Signature signature = Signature.getInstance(algorithm, config.getProvider());
         signature.initVerify(publicKey);
@@ -762,11 +850,11 @@ public class Licify {
 
         byte[] sigBytes = Base64.getDecoder().decode(license.getSignature());
         boolean isValid = signature.verify(sigBytes);
-        System.out.println("Firma válida: " + isValid);
+        logger.info("Firma válida: {}", isValid);
 
         if (!isValid) {
-            System.out.println("=== DEBUG: Comparando con firma original ===");
-            System.out.println("Firma almacenada: " + license.getSignature());
+            logger.debug("=== DEBUG: Comparando con firma original ===");
+            logger.debug("Firma almacenada: {}", license.getSignature());
         }
     }
 
@@ -1106,8 +1194,15 @@ public class Licify {
         return hardwareIdCache;
     }
 
+    /**
+     * Sets the hardware matching tolerance (deprecated - use default tolerance).
+     * @param tolerance Number of components that must match
+     * @deprecated The tolerance is now fixed at 2 for security. This method does nothing.
+     */
+    @Deprecated
     public static void setHardwareTolerance(int tolerance) {
-        HardwareId.setTolerance(tolerance);
+        // Tolerance is now fixed at 2 for security reasons
+        // This method is deprecated and does nothing
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.licify.core;
 
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +18,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 public class LicenseRevocationManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(LicenseRevocationManager.class);
 
     private String revokedLicenseFile = "revoked.lics";
     private static final LicenseRevocationManager instance = new LicenseRevocationManager();
@@ -38,7 +42,7 @@ public class LicenseRevocationManager {
             loadRevokedLicenses();
         } catch (Exception e) {
             // Manejo mejorado del error de inicialización
-            System.err.println("Warning: Could not initialize revocation manager: " + e.getMessage());
+            logger.warn("Could not initialize revocation manager: {}", e.getMessage());
             this.revocationFilePath = Paths.get("revoked.lics"); // fallback
         }
     }
@@ -62,7 +66,7 @@ public class LicenseRevocationManager {
                 Files.createFile(revocationFilePath);
             }
         } catch (IOException ex) {
-            System.err.println(ERROR_CREATING_FILE);
+            logger.error(ERROR_CREATING_FILE);
             // Don't throw exception during initialization, just log
         } finally {
             lock.writeLock().unlock();
@@ -92,11 +96,11 @@ public class LicenseRevocationManager {
                     StandardOpenOption.WRITE
             );
 
-            System.err.println(String.format("License revoked: {0}", hash));
+            logger.info("License revoked: {}", hash);
             return true;
 
         } catch (Exception e) {
-            System.err.println(String.format(ERROR_REVOKING_LICENSE, e));
+            logger.error(ERROR_REVOKING_LICENSE, e);
             return false;
         } finally {
             lock.writeLock().unlock();
@@ -140,12 +144,12 @@ public class LicenseRevocationManager {
 
                 revokedCount = newHashes.size();
 
-                System.err.println(String.format("Revoked {0} licenses in batch", revokedCount));
+                logger.info("Revoked {} licenses in batch", revokedCount);
             }
             return revokedCount;
 
         } catch (IOException e) {
-            System.err.println(String.format("Error batch revoking licenses", e));
+            logger.error("Error batch revoking licenses", e);
             return revokedCount;
         } finally {
             lock.writeLock().unlock();
@@ -161,7 +165,7 @@ public class LicenseRevocationManager {
             String hash = hashLicenseData(licenseData);
             return revokedLicenses.contains(hash);
         } catch (Exception e) {
-            System.err.println(String.format(ERROR_CHECKING_REVOCATION, e));
+            logger.error(ERROR_CHECKING_REVOCATION, e);
             return false;
         } finally {
             lock.readLock().unlock();
@@ -182,12 +186,10 @@ public class LicenseRevocationManager {
                         .filter(line -> !line.isEmpty())
                         .collect(Collectors.toSet()));
 
-                System.err.println(String.format(
-                        "Loaded {0} revoked licenses from file",
-                        revokedLicenses.size()));
+                logger.info("Loaded {} revoked licenses from file", revokedLicenses.size());
             }
         } catch (IOException e) {
-            System.err.println(String.format(ERROR_LOADING_REVOCATIONS, e));
+            logger.error(ERROR_LOADING_REVOCATIONS, e);
         } finally {
             lock.writeLock().unlock();
         }
@@ -247,9 +249,9 @@ public class LicenseRevocationManager {
             Files.deleteIfExists(revocationFilePath);
             initializeRevocationFile();
 
-            System.err.println(String.format("All revocations cleared"));
+            logger.info("All revocations cleared");
         } catch (IOException e) {
-            System.err.println(String.format("Error clearing revocations", e));
+            logger.error("Error clearing revocations", e);
         } finally {
             lock.writeLock().unlock();
         }
@@ -307,10 +309,10 @@ public class LicenseRevocationManager {
             // Load licenses from the new file
             loadRevokedLicenses();
 
-            System.err.println(String.format("Revocation file changed to: {0}", revokedLicenseFile));
+            logger.info("Revocation file changed to: {}", revokedLicenseFile);
 
         } catch (IOException ex) {
-            System.err.println(String.format("Error setting revocation file", ex));
+            logger.error("Error setting revocation file", ex);
             // Don't throw exception, just log
         } finally {
             lock.writeLock().unlock();

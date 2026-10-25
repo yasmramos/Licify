@@ -1,5 +1,12 @@
 package com.licify.core;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -13,6 +20,16 @@ import java.util.stream.Collectors;
  * Provides session tracking, activation/deactivation, and automatic cleanup.
  */
 public class FloatingLicenseManager {
+    
+    private static final Logger logger = LoggerFactory.getLogger(FloatingLicenseManager.class);
+    private static final ObjectMapper objectMapper;
+    
+    static {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.registerModule(new JavaTimeModule());
+        objectMapper = mapper;
+    }
     
     private static final String DEFAULT_SESSIONS_FILE = "floating-sessions.json";
     private final ConcurrentMap<String, SessionInfo> activeSessions;
@@ -32,6 +49,24 @@ public class FloatingLicenseManager {
         private final LocalDateTime activatedAt;
         private LocalDateTime lastHeartbeat;
         private final int maxUsers;
+        
+        @JsonCreator
+        public SessionInfo(
+            @JsonProperty("sessionId") String sessionId,
+            @JsonProperty("licenseId") String licenseId,
+            @JsonProperty("clientId") String clientId,
+            @JsonProperty("clientHost") String clientHost,
+            @JsonProperty("activatedAt") LocalDateTime activatedAt,
+            @JsonProperty("lastHeartbeat") LocalDateTime lastHeartbeat,
+            @JsonProperty("maxUsers") int maxUsers) {
+            this.sessionId = sessionId;
+            this.licenseId = licenseId;
+            this.clientId = clientId;
+            this.clientHost = clientHost;
+            this.activatedAt = activatedAt != null ? activatedAt : LocalDateTime.now();
+            this.lastHeartbeat = lastHeartbeat != null ? lastHeartbeat : LocalDateTime.now();
+            this.maxUsers = maxUsers;
+        }
         
         public SessionInfo(String sessionId, String licenseId, String clientId, 
                           String clientHost, int maxUsers) {
@@ -146,7 +181,7 @@ public class FloatingLicenseManager {
      */
     public ActivationResult activateSession(String licenseId, String clientId, 
                                            String clientHost, int maxUsers) {
-        lock.readLock().lock();
+        lock.writeLock().lock();
         try {
             // Count active sessions for this license
             long currentUsers = activeSessions.values().stream()
@@ -169,7 +204,7 @@ public class FloatingLicenseManager {
             return new ActivationResult(true, sessionId, "Session activated successfully",
                                        (int)currentUsers + 1, maxUsers);
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
     
@@ -294,69 +329,47 @@ public class FloatingLicenseManager {
     }
     
     /**
-     * Saves sessions to JSON file.
+     * Saves sessions to JSON file using Jackson.
      */
     private void saveSessions() {
+        lock.writeLock().lock();
         try {
-            StringBuilder json = new StringBuilder("[\n");
-            Iterator<SessionInfo> iterator = activeSessions.values().iterator();
-            while (iterator.hasNext()) {
-                SessionInfo session = iterator.next();
-                json.append("  {\n");
-                json.append("    \"sessionId\": \"").append(session.getSessionId()).append("\",\n");
-                json.append("    \"licenseId\": \"").append(session.getLicenseId()).append("\",\n");
-                json.append("    \"clientId\": \"").append(session.getClientId()).append("\",\n");
-                json.append("    \"clientHost\": \"").append(session.getClientHost()).append("\",\n");
-                json.append("    \"activatedAt\": \"").append(session.getActivatedAt()).append("\",\n");
-                json.append("    \"lastHeartbeat\": \"").append(session.getLastHeartbeat()).append("\",\n");
-                json.append("    \"maxUsers\": ").append(session.getMaxUsers()).append("\n");
-                json.append("  }");
-                if (iterator.hasNext()) {
-                    json.append(",");
-                }
-                json.append("\n");
-            }
-            json.append("]");
-            
-            Files.writeString(sessionsFilePath, json.toString());
+            List<SessionInfo> sessionsList = new ArrayList<>(activeSessions.values());
+            String json = objectMapper.writeValueAsString(sessionsList);
+            Files.writeString(sessionsFilePath, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            logger.debug("Saved {} active sessions to {}", activeSessions.size(), sessionsFilePath);
         } catch (IOException e) {
-            System.err.println("Failed to save sessions: " + e.getMessage());
+            logger.error("Failed to save sessions: {}", e.getMessage(), e);
+        } finally {
+            lock.writeLock().unlock();
         }
     }
     
     /**
-     * Loads sessions from JSON file.
+     * Loads sessions from JSON file using Jackson.
+     * Package-private for testing purposes.
      */
-    private void loadSessions() {
+    @SuppressWarnings("unchecked")
+    void loadSessions() {
         if (!Files.exists(sessionsFilePath)) {
+            logger.debug("Sessions file not found: {}", sessionsFilePath);
             return;
         }
         
         try {
             String content = Files.readString(sessionsFilePath);
-            // Simple JSON parsing (in production, use Jackson or Gson)
-            activeSessions.clear();
-            
-            // Extract session objects using regex
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(
-                "\\{[^}]*\"sessionId\"\\s*:\\s*\"([^\"]+)\"[^}]*\"licenseId\"\\s*:\\s*\"([^\"]+)\"[^}]*\"clientId\"\\s*:\\s*\"([^\"]+)\"[^}]*\"clientHost\"\\s*:\\s*\"([^\"]+)\"[^}]*\"maxUsers\"\\s*:\\s*(\\d+)[^}]*\\}",
-                java.util.regex.Pattern.DOTALL
+            List<SessionInfo> sessions = objectMapper.readValue(
+                content, 
+                objectMapper.getTypeFactory().constructCollectionType(List.class, SessionInfo.class)
             );
             
-            java.util.regex.Matcher matcher = pattern.matcher(content);
-            while (matcher.find()) {
-                String sessionId = matcher.group(1);
-                String licenseId = matcher.group(2);
-                String clientId = matcher.group(3);
-                String clientHost = matcher.group(4);
-                int maxUsers = Integer.parseInt(matcher.group(5));
-                
-                SessionInfo session = new SessionInfo(sessionId, licenseId, clientId, 
-                                                      clientHost, maxUsers);
-                activeSessions.put(sessionId, session);
+            activeSessions.clear();
+            for (SessionInfo session : sessions) {
+                activeSessions.put(session.getSessionId(), session);
             }
+            logger.info("Loaded {} sessions from {}", activeSessions.size(), sessionsFilePath);
         } catch (IOException e) {
-            System.err.println("Failed to load sessions: " + e.getMessage());
+            logger.error("Failed to load sessions: {}", e.getMessage(), e);
         }
     }
 }
