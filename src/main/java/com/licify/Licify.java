@@ -81,12 +81,22 @@ public class Licify {
                     break;
                 case "issueDate":
                     if (!value.isEmpty()) {
-                        license.setIssueDate(LocalDateTime.parse(value));
+                        try {
+                            license.setIssueDate(LocalDateTime.parse(value));
+                        } catch (java.time.format.DateTimeParseException ex) {
+                            throw new IllegalArgumentException(
+                                    "Corrupted license text: invalid issueDate value '" + value + "'", ex);
+                        }
                     }
                     break;
                 case "expirationDate":
                     if (!value.isEmpty()) {
-                        license.setExpirationDate(LocalDateTime.parse(value));
+                        try {
+                            license.setExpirationDate(LocalDateTime.parse(value));
+                        } catch (java.time.format.DateTimeParseException ex) {
+                            throw new IllegalArgumentException(
+                                    "Corrupted license text: invalid expirationDate value '" + value + "'", ex);
+                        }
                     }
                     break;
                 case "productId":
@@ -137,7 +147,7 @@ public class Licify {
     }
 
     /**
-     * Clase que representa una licencia
+     * Represents a software license.
      */
     public static class License implements Serializable {
 
@@ -169,6 +179,16 @@ public class Licify {
 
         public String getLicenseFile() {
             return licenseFile;
+        }
+
+        /**
+         * Returns a human-readable representation of this license. Note that the
+         * revocation system identifies licenses by their unique {@code licenseKey},
+         * not by this string.
+         */
+        @Override
+        public String toString() {
+            return "License{key='" + licenseKey + "', licensee='" + licenseeName + "'}";
         }
 
         public void setLicenseFile(String licenseFile) {
@@ -480,7 +500,7 @@ public class Licify {
             if (license.getIssueDate() == null) {
                 license.setIssueDate(LocalDateTime.now());
             }
-            // Establecer valores por defecto si no se han configurado
+            // Set default values if not configured
             if (license.getLicenseType() == null) {
                 license.setLicenseType("COMMERCIAL");
             }
@@ -492,7 +512,11 @@ public class Licify {
                 try {
                     save(license, license.getLicenseFile());
                 } catch (Exception ex) {
-                    System.getLogger(Licify.class.getName()).log(System.Logger.Level.ERROR, "Error al guardar la licencia", ex);
+                    // A requested persistence that fails must not be silently ignored:
+                    // propagate it so callers know the license was not stored.
+                    logger.error("Error saving license to {}: {}", license.getLicenseFile(), ex.getMessage());
+                    throw new IllegalStateException(
+                            "Failed to save license to file: " + license.getLicenseFile(), ex);
                 }
             }
             return license;
@@ -506,19 +530,21 @@ public class Licify {
     }
 
     /**
-     * Establece la configuración por defecto de cifrado
+     * Sets the default encryption configuration. A defensive copy is stored so
+     * later external mutations do not affect the shared default (consistent with
+     * {@link #setDefaultSignatureConfig(SignatureConfig)}).
      */
     public static void setDefaultEncryptionConfig(EncryptionConfig config) {
         if (config != null) {
-            defaultEncryptionConfig = config;
+            defaultEncryptionConfig = config.copy();
         }
     }
 
     /**
-     * Obtiene la configuración por defecto de cifrado
+     * Gets a copy of the default encryption configuration.
      */
     public static EncryptionConfig getDefaultEncryptionConfig() {
-        return defaultEncryptionConfig;
+        return defaultEncryptionConfig.copy();
     }
 
     /**
@@ -675,20 +701,14 @@ public class Licify {
         }
 
         if (!isValidLicense(license)) {
-            logger.error("Licencia inválida: estructura básica incorrecta");
+            logger.error("Invalid license: basic structure is incorrect");
             return false;
         }
 
-        boolean hardwareValid = verifyLicenseForHardware(license);
-        if (!hardwareValid) {
-            logger.warn("Verificación de Hardware completa fallida, probando con tolerancia...");
-            boolean hardwareValidTolerance = verifyLicenseForHardwareWithTolerance(license);
-            if (!hardwareValidTolerance) {
-                logger.error("Verificación de Hardware con tolerancia fallida");
-                return false;
-            }
-        }
-
+        // Verify the digital signature FIRST. Hardware binding data must never be
+        // trusted before integrity has been proven, otherwise an attacker could
+        // tamper with the hardwareId field and rely on tolerant matching to pass.
+        boolean signatureValid;
         try {
             String licenseData = serializeLicense(license);
             Signature signature = Signature.getInstance(algorithm, config.getProvider());
@@ -696,11 +716,30 @@ public class Licify {
             signature.update(licenseData.getBytes(StandardCharsets.UTF_8));
 
             byte[] sigBytes = Base64.getDecoder().decode(license.getSignature());
-            return signature.verify(sigBytes);
+            signatureValid = signature.verify(sigBytes);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException ex) {
-            logger.error("Error durante la verificación de la licencia: {}", ex.getMessage());
+            logger.error("Error during license verification: {}", ex.getMessage());
             return false;
         }
+
+        if (!signatureValid) {
+            logger.error("Digital signature verification failed");
+            return false;
+        }
+
+        // Only after the signature is proven valid, check hardware binding
+        // (with tolerance fallback for minor hardware changes).
+        boolean hardwareValid = verifyLicenseForHardware(license);
+        if (!hardwareValid) {
+            logger.warn("Exact hardware verification failed, trying with tolerance...");
+            boolean hardwareValidTolerance = verifyLicenseForHardwareWithTolerance(license);
+            if (!hardwareValidTolerance) {
+                logger.error("Hardware verification with tolerance failed");
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -859,80 +898,12 @@ public class Licify {
     }
 
     /**
-     * Deserializa una licencia desde texto
+     * Deserializes a license from its text (key=value) representation.
+     * Delegates to the single public parser {@link #createLicenseFromText(String)}
+     * to avoid duplicated parsing logic.
      */
     private static License deserializeLicense(String licenseData) {
-        License license = new License();
-        String[] lines = licenseData.split("\n");
-
-        for (String line : lines) {
-            if (line.contains("=")) {
-                String[] parts = line.split("=", 2);
-                String key = parts[0];
-                String value = parts.length > 1 ? parts[1] : "";
-
-                switch (key) {
-                    case "version":
-                        license.setVersion(value);
-                        break;
-                    case "licenseeName":
-                        license.setLicenseeName(value);
-                        break;
-                    case "licenseeEmail":
-                        license.setLicenseeEmail(value);
-                        break;
-                    case "issueDate":
-                        if (!value.isEmpty()) {
-                            license.setIssueDate(LocalDateTime.parse(value));
-                        }
-                        break;
-                    case "expirationDate":
-                        if (!value.isEmpty()) {
-                            license.setExpirationDate(LocalDateTime.parse(value));
-                        }
-                        break;
-                    case "productId":
-                        license.setProductId(value);
-                        break;
-                    case "productVersion":
-                        license.setProductVersion(value);
-                        break;
-                    case "licenseKey":
-                        license.setLicenseKey(value);
-                        break;
-                    case "isTrial":
-                        license.setTrial(Boolean.parseBoolean(value));
-                        break;
-                    case "maxUsers":
-                        if (!value.isEmpty()) {
-                            license.setMaxUsers(Integer.parseInt(value));
-                        }
-                        break;
-                    case "features":
-                        license.setFeaturesFromString(value);
-                        break;
-                    case "licenseType":
-                        license.setLicenseType(value);
-                        break;
-                    case "customData":
-                        license.setCustomData(value);
-                        break;
-                    case "signatureAlgorithm":
-                        license.setSignatureAlgorithm(value);
-                        break;
-                    case "signature":
-                        license.setSignature(value);
-                        break;
-                    case "publicKeyFingerprint":
-                        license.setPublicKeyFingerprint(value);
-                        break;
-                    case "hardwareId":
-                        license.setHardwareId(value);
-                        break;
-                }
-            }
-        }
-        return license;
+        return createLicenseFromText(licenseData);
     }
 
     /**
@@ -994,32 +965,34 @@ public class Licify {
     }
 
     /**
-     * Valida si una licencia es válida
+     * Validates whether a license has a correct basic structure and is not expired.
+     * This method is side-effect free.
      */
     public static boolean isValidLicense(License license) {
         if (license == null) {
             return false;
         }
 
-        // Verificar fechas
+        // Check dates
         LocalDateTime now = LocalDateTime.now();
         if (license.getExpirationDate() != null && now.isAfter(license.getExpirationDate())) {
             return false;
         }
 
-        // Verificar que el nombre del licenciatario no esté vacío
+        // Licensee name must not be empty
         if (license.getLicenseeName() == null || license.getLicenseeName().trim().isEmpty()) {
             return false;
         }
 
-        // Verificar que la clave de licencia exista
+        // License key must exist
         if (license.getLicenseKey() == null || license.getLicenseKey().trim().isEmpty()) {
             return false;
         }
 
-        // Verificar que tenga un tipo de licencia válido
-        if (license.getLicenseType() == null) {
-            license.setLicenseType("UNKNOWN");
+        // A license type is required. This method must remain side-effect free:
+        // it reports invalidity instead of mutating the license.
+        if (license.getLicenseType() == null || license.getLicenseType().trim().isEmpty()) {
+            return false;
         }
 
         return true;
@@ -1183,13 +1156,27 @@ public class Licify {
     }
 
     /**
-     * Obtiene el ID de hardware usando una estrategia más consistente
+     * Returns the current hardware fingerprint, using a cached value for
+     * consistency. Note: the cache is never invalidated automatically; if the
+     * underlying hardware changes at runtime (e.g. VMs or containers), call
+     * {@link #refreshHardwareId()} to recompute it.
      */
     public static String getHardwareId() {
         if (hardwareIdCache != null) {
             return hardwareIdCache;
         }
 
+        hardwareIdCache = HardwareId.generateFingerprint();
+        return hardwareIdCache;
+    }
+
+    /**
+     * Invalidates the cached hardware fingerprint and recomputes it from the
+     * current hardware state.
+     *
+     * @return the freshly computed hardware fingerprint
+     */
+    public static String refreshHardwareId() {
         hardwareIdCache = HardwareId.generateFingerprint();
         return hardwareIdCache;
     }
@@ -1349,12 +1336,30 @@ public class Licify {
         return DateTimeUtils.createExpirationDate(days, hours, minutes);
     }
 
+    /**
+     * Revokes a license by its unique license key.
+     *
+     * @param license the license to revoke; must not be null and must have a license key
+     * @throws IllegalArgumentException if the license or its license key is null
+     */
     public static void revoke(License license) {
-        revocationManager.revokeLicense(license.toString());
+        if (license == null || license.getLicenseKey() == null) {
+            throw new IllegalArgumentException("License or license key cannot be null");
+        }
+        revocationManager.revokeLicense(license.getLicenseKey());
     }
 
+    /**
+     * Checks whether a license has been revoked, using its unique license key.
+     *
+     * @param license the license to check
+     * @return true if the license is revoked, false otherwise
+     */
     public static boolean isRevoke(License license) {
-        return revocationManager.isRevoked(license.toString());
+        if (license == null || license.getLicenseKey() == null) {
+            return false;
+        }
+        return revocationManager.isRevoked(license.getLicenseKey());
     }
 
     public static Set<String> getRevokedLicenses() {
