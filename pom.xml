@@ -157,6 +157,26 @@
                         <arg>-parameters</arg>
                     </compilerArgs>
                 </configuration>
+                <executions>
+                    <!-- The project compiles as a named JPMS module (com.licify).
+                         End-to-end tests use the JDK's built-in HttpServer, so the
+                         jdk.httpserver module must be explicitly added to the test
+                         compilation graph; otherwise javac rejects the import with
+                         "package com.sun.net.httpserver is not visible". This only
+                         affects test compilation, never the published artifact. -->
+                    <execution>
+                        <id>default-testCompile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <compilerArgs combine.children="append">
+                                <arg>--add-modules</arg>
+                                <arg>jdk.httpserver</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             
             <!-- Maven Surefire Plugin para ejecutar tests -->
@@ -168,6 +188,9 @@
                     <includes>
                         <include>**/*Test.java</include>
                         <include>**/*Tests.java</include>
+                        <!-- Integration tests (*IT) run in the verify phase via
+                             maven-failsafe-plugin, not here, so that `mvn test`
+                             stays fast and reports them separately. -->
                     </includes>
                     <!--
                         Jackson (automatic module, loaded from the classpath) needs deep
@@ -182,6 +205,35 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
+
+            <!-- Maven Failsafe Plugin: integration and end-to-end tests (*IT.java)
+                 run during the verify phase against the fully built artifact. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <!-- Same JPMS opens as surefire: Jackson (automatic module on
+                         the classpath) needs reflective access to com.licify.core
+                         DTOs when the project runs as a named module. -->
+                    <argLine>@{argLine} -Xmx1024m --add-opens com.licify/com.licify.core=com.fasterxml.jackson.databind --add-opens com.licify/com.licify.core=ALL-UNNAMED</argLine>
+                    <systemPropertyVariables>
+                        <java.awt.headless>true</java.awt.headless>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             
             <!-- JaCoCo Plugin -->
             <plugin>
@@ -193,6 +245,14 @@
                         <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!-- Instruments the failsafe (integration) JVM and merges its
+                         execution data into the final coverage report. -->
+                    <execution>
+                        <id>prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
                         </goals>
                     </execution>
                     <execution>
